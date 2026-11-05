@@ -19,6 +19,11 @@ Status: **decidido** (você disse), **proposta** (implementada como padrão, fá
 | D-09 | A busca (sem acento, termos com E) roda **em memória** sobre a planilha lida e mantida em cache no servidor. Meta de 300 ms com 10 mil motores depende disso; cota da API do Sheets (~60 leituras/min por usuário) exige cache. Validar na Fase 6. | proposta |
 | D-10 | Fotos ficam no **Google Drive** da mesma conta (Fase 5); a planilha guarda só o id do arquivo. | proposta |
 | D-11 | Credenciais do OAuth copiadas do `financeiro-os` para o `.env` local (você autorizou). **Criar um cliente OAuth novo antes de subir.** O redirect `http://localhost:3000/api/auth/callback/google` precisa estar autorizado nele. | decidido |
+| D-26 | **Tela de login antecipada** (era Fase 1), a pedido: logo, "Entrar", 3 pontos sobre o projeto e botão "Entrar com Google", no padrão chapado da Silper. Texto dos 3 pontos e subtítulo são minha proposta (o doc 03 só pede logo, "Entrar" e botão). Erros: `sem_acesso` ("Esta conta não tem acesso. Fale com o responsável." + "Trocar de conta"), `drive_permission`, `drive_quota`, `setup_failed`, `AccessDenied`. | proposta |
+| D-27 | **Quem pode entrar**: `AUTH_ALLOWED_EMAILS` (lista). Vazia = qualquer conta Google, o que é seguro no modelo atual (cada conta cria e lê só a própria planilha), mas **defina a lista antes de subir**. | proposta |
+| D-28 | **Cookies do Auth.js com nome próprio** (`silper.*`). No `localhost` os cookies valem para todas as portas; o cookie do `financeiro-os` (outro segredo) derrubava a sessão com `no matching decryption secret`. | decidido (correção técnica) |
+| D-29 | O redirect autorizado no cliente OAuth é `http://localhost:3000/...`. O Silper precisa rodar na **porta 3000**, então o `financeiro-os` tem de estar parado. Ao criar o cliente OAuth novo (D-11), autorize também a porta que for usar. | aberto |
+| D-30 | Next 16 renomeou `middleware` para `proxy` (`src/proxy.ts`). Com Cache Components ligado, ler `searchParams` ou `auth()` fora de `Suspense` bloqueia o pré-render (tela de login e página inicial já tratadas). | decidido |
 
 ## Contradições e lacunas nos documentos
 

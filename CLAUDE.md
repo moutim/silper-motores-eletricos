@@ -10,7 +10,7 @@ Sistema web (celular e desktop) de cadastro de motores e ordens de serviço. Esp
 npm install
 cp .env.example .env        # preencher GOOGLE_CLIENT_ID/SECRET e AUTH_SECRET
 
-npm run dev                 # servidor de desenvolvimento (http://localhost:3000)
+npm run dev                 # servidor de desenvolvimento (http://localhost:3000; o login Google exige a porta 3000)
 npm run build               # build de produção
 npm run lint                # ESLint
 npm run typecheck           # tsc --noEmit
