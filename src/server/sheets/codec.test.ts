@@ -27,6 +27,17 @@ describe("codec da planilha", () => {
     expect(fromRow(ORDENS_SERVICO, toRow(ORDENS_SERVICO, os[0]))).toEqual(os[0])
   })
 
+  it("lê números que a planilha devolve como número, inclusive decimais (leitura sem formatação)", () => {
+    const m = seed.motores[1]
+    const linha = toRow(MOTORES, m) as unknown[]
+    expect(m.potenciaValor).toBe(0.5)
+    expect(fromRow(MOTORES, linha).potenciaValor).toBe(0.5)
+    const os = seed.ordens[0]
+    const comValor = { ...os, valorNota: 1234.5 }
+    const volta = fromRow(ORDENS_SERVICO, toRow(ORDENS_SERVICO, comValor))
+    expect(volta.valorNota).toBe(1234.5)
+  })
+
   it("cada aba tem cabeçalhos únicos", () => {
     for (const t of TABELAS) {
       const h = headersOf(t as never)

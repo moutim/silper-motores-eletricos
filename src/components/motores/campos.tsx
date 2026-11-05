@@ -1,32 +1,35 @@
 "use client"
 
-import { type Path, Controller, get, useFormContext } from "react-hook-form"
+import { type FieldValues, type Path, Controller, get, useFormContext } from "react-hook-form"
 import { useState } from "react"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { MotorFormValues } from "@/lib/motor-schema"
 
-type Nome = Path<MotorFormValues>
-
 const classeRotulo = "text-xs font-semibold text-text-tertiary"
 
-export function CampoTexto({
+export function CampoTexto<T extends FieldValues = MotorFormValues>({
   name,
   label,
   obrigatorio,
   placeholder,
   inputMode,
+  dica,
+  maxLength,
   className,
 }: {
-  name: Nome
+  name: Path<T>
   label: string
   obrigatorio?: boolean
   placeholder?: string
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
+  /** Texto de apoio abaixo do campo (some quando há erro). */
+  dica?: string
+  maxLength?: number
   className?: string
 }) {
-  const { register, formState } = useFormContext<MotorFormValues>()
+  const { register, formState } = useFormContext<T>()
   const erro = get(formState.errors, name) as { message?: string } | undefined
   const id = `campo-${name.replace(".", "-")}`
   return (
@@ -41,10 +44,19 @@ export function CampoTexto({
         placeholder={placeholder}
         aria-required={obrigatorio}
         aria-invalid={!!erro}
-        aria-describedby={erro ? `${id}-erro` : undefined}
+        aria-describedby={erro ? `${id}-erro` : dica ? `${id}-dica` : undefined}
+        maxLength={maxLength}
         {...register(name)}
       />
-      {erro?.message && <FieldError id={`${id}-erro`}>{erro.message}</FieldError>}
+      {erro?.message ? (
+        <FieldError id={`${id}-erro`}>{erro.message}</FieldError>
+      ) : (
+        dica && (
+          <p id={`${id}-dica`} className="text-xs text-text-tertiary">
+            {dica}
+          </p>
+        )
+      )}
     </Field>
   )
 }

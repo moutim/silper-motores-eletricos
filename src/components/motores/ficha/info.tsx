@@ -16,10 +16,13 @@ export function CartaoLinhas({ linhas }: { linhas: Linha[] }) {
       {linhas.map((l) => (
         <li
           key={l.rotulo}
-          className="relative flex items-center justify-between gap-3 px-4 py-[13px] text-sm after:absolute after:bottom-0 after:left-4 after:right-0 after:h-px after:bg-separator last:after:hidden"
+          className={`relative flex items-center justify-between gap-3 px-4 py-[13px] text-sm after:absolute after:bottom-0 after:left-4 after:right-0 after:h-px after:bg-separator last:after:hidden ${l.destaque ? "bg-orange-light" : ""}`}
         >
           <span className="shrink-0">{l.rotulo}</span>
-          <span className="min-w-0 text-right text-text-tertiary">{l.valor ?? "Não informado"}</span>
+          <span className={`min-w-0 text-right ${l.destaque ? "font-medium text-orange-text" : "text-text-tertiary"}`}>
+            {l.valor ?? "Não informado"}
+            {l.destaque && <span className="block text-[11px] font-normal">Mudou desde a abertura</span>}
+          </span>
         </li>
       ))}
     </ul>

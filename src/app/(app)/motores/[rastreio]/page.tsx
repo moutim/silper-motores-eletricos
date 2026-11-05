@@ -11,7 +11,7 @@ export default function FichaDoMotor({
   searchParams,
 }: {
   params: Promise<{ rastreio: string }>
-  searchParams: Promise<{ aba?: string }>
+  searchParams: Promise<{ aba?: string; os?: string }>
 }) {
   return (
     <>

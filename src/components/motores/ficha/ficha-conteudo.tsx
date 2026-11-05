@@ -7,7 +7,9 @@ import { abaDaUrl } from "@/lib/ficha"
 import { carregarFicha, gravarAcessoRecente } from "@/server/motores"
 import { AbasFicha } from "./abas-ficha"
 import { CartaoMotor } from "./cartao-motor"
-import { PainelDados, PainelFotos, PainelOS } from "./paineis"
+import { PainelOS } from "@/components/os/painel-os"
+import { listarOSDoMotor } from "@/server/ordens"
+import { PainelDados, PainelFotos } from "./paineis"
 
 /** Ficha do motor (3.1 e 3.2): lê o motor no servidor, registra o acesso e monta cartão, abas e painel. */
 export async function FichaConteudo({
@@ -15,16 +17,18 @@ export async function FichaConteudo({
   searchParams,
 }: {
   params: Promise<{ rastreio: string }>
-  searchParams: Promise<{ aba?: string }>
+  searchParams: Promise<{ aba?: string; os?: string }>
 }) {
   const { rastreio } = await params
-  const { aba: abaParam } = await searchParams
+  const { aba: abaParam, os: osParam } = await searchParams
   const dados = await carregarFicha(rastreio)
   if (!dados) notFound()
 
   const { motor, bobinagens, usuario, planilha } = dados
   const aba = abaDaUrl(abaParam)
   if (motor.ativo) after(() => gravarAcessoRecente(planilha, usuario, motor.id))
+
+  const ordens = aba === "os" ? await listarOSDoMotor(motor.id) : []
 
   return (
     <div className="flex flex-col gap-3 md:gap-0">
@@ -50,7 +54,7 @@ export async function FichaConteudo({
 
       <AbasFicha aba={aba}>
         {aba === "dados" && <PainelDados motor={motor} bobinagens={bobinagens} />}
-        {aba === "os" && <PainelOS />}
+        {aba === "os" && <PainelOS motor={motor} bobinagens={bobinagens} ordens={ordens} selecionadaId={osParam} />}
         {aba === "fotos" && <PainelFotos />}
       </AbasFicha>
     </div>

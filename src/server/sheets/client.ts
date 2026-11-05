@@ -25,7 +25,11 @@ export function letraDaColuna(indice: number): string {
   return s
 }
 
-/** Acesso tabular a uma planilha. Lê com A2:ZZ (sem o cabeçalho) e grava sempre em RAW. */
+/**
+ * Acesso tabular a uma planilha. Leituras usam UNFORMATTED_VALUE: a planilha da conta pode estar em
+ * pt-BR e devolveria "1234,5" (texto) para o número 1234.5, o que quebraria a conversão. Lê com
+ * A2:ZZ (sem o cabeçalho) e grava sempre em RAW.
+ */
 export class Planilha {
   constructor(
     private readonly sheets: Sheets,
@@ -36,6 +40,7 @@ export class Planilha {
     const res = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
       range: `${def.tab}!A2:ZZ`,
+      valueRenderOption: "UNFORMATTED_VALUE",
     })
     return (res.data.values ?? []).filter((r) => r.some((c) => c !== "")).map((r) => fromRow(def, r))
   }
@@ -45,6 +50,7 @@ export class Planilha {
     const res = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
       range: `${def.tab}!A2:ZZ`,
+      valueRenderOption: "UNFORMATTED_VALUE",
     })
     return (res.data.values ?? [])
       .map((r, i) => ({ r, linha: i + 2 }))
@@ -83,6 +89,7 @@ export class Planilha {
     const res = await this.sheets.spreadsheets.values.get({
       spreadsheetId: this.spreadsheetId,
       range: `${def.tab}!${letra}2:${letra}`,
+      valueRenderOption: "UNFORMATTED_VALUE",
     })
     return (res.data.values ?? []).map((r) => (r[0] === undefined || r[0] === null ? "" : String(r[0])))
   }

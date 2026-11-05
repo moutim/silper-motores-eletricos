@@ -13,6 +13,10 @@ interface Props {
   aoFechar: () => void
   /** Barra de ações: fixa embaixo na gaveta; no rodapé, à direita, na janela. */
   rodape: React.ReactNode
+  /** Selo ao lado do título na janela do desktop (ex.: "SIL-000125 · WEG 5 CV"). */
+  tituloExtra?: React.ReactNode
+  /** Altura fixa na janela (evita o rodapé pular quando o conteúdo muda). Sem ela, a janela acompanha o conteúdo. */
+  alturaFixa?: boolean
   /** Largura da janela no desktop (940 px nos cadastros, 600 px na Nova O.S.). A altura é fixa para o rodapé não pular quando o conteúdo muda. */
   larguraJanela?: number
   children: React.ReactNode
@@ -36,7 +40,7 @@ const classeTitulo = "text-[21px] font-bold leading-[1.15] tracking-[-0.02em] md
  * Tudo o que adiciona ou edita abre por cima da tela (doc 02, 6.3): gaveta no celular, janela no
  * desktop, com X cinza no canto do título.
  */
-export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, larguraJanela = 940, children }: Props) {
+export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, tituloExtra, alturaFixa = true, larguraJanela = 940, children }: Props) {
   const celular = useIsMobile()
   const aoMudar = (aberto: boolean) => {
     if (!aberto) aoFechar()
@@ -70,10 +74,13 @@ export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, larguraJan
       <DialogContent
         showCloseButton={false}
         style={{ width: larguraJanela }}
-        className="flex h-[min(760px,calc(100dvh-48px))] max-w-[calc(100vw-48px)] flex-col gap-0 rounded-card p-0 ring-0 sm:max-w-[calc(100vw-48px)]"
+        className={`flex max-w-[calc(100vw-48px)] flex-col gap-0 rounded-card p-0 ring-0 sm:max-w-[calc(100vw-48px)] ${alturaFixa ? "h-[min(760px,calc(100dvh-48px))]" : "max-h-[calc(100dvh-48px)]"}`}
       >
         <div className="flex items-center justify-between gap-3 px-6 pb-4 pt-5">
-          <DialogTitle className={classeTitulo}>{titulo}</DialogTitle>
+          <div className="flex min-w-0 items-center gap-3">
+            <DialogTitle className={classeTitulo}>{titulo}</DialogTitle>
+            {tituloExtra}
+          </div>
           <DialogClose asChild>
             <BotaoX />
           </DialogClose>

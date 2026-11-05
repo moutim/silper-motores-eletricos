@@ -4,6 +4,8 @@ import type { Bobinagem, Motor, TipoMotor } from "./types"
 export interface Linha {
   rotulo: string
   valor: string | null
+  /** Realça a linha (por exemplo: mudou desde a abertura da O.S.). */
+  destaque?: boolean
 }
 
 export const ROTULO_TIPO: Record<TipoMotor, string> = { TRIFASICO: "Trifásico", MONOFASICO: "Monofásico" }
@@ -21,10 +23,21 @@ const juntar = (...partes: (string | null)[]) => {
   return p.length ? p.join(" · ") : null
 }
 
+/** Campos técnicos do motor (o retrato da O.S. guarda exatamente estes, sem o cliente). */
+export type DadosTecnicos = Pick<
+  Motor,
+  | "marca" | "modelo" | "tipoEquipamento" | "potenciaValor" | "potenciaUnidade"
+  | "tensao" | "corrente" | "rpm" | "fatorServico" | "item" | "pacote" | "diametro" | "tipoMotor"
+>
+
 /** Todos os dados gerais da ficha (a implementação mostra todos, doc 03, 3.1). */
 export function linhasDadosGerais(m: Motor): Linha[] {
+  return [{ rotulo: "Cliente", valor: m.clienteNome }, ...linhasTecnicas(m)]
+}
+
+/** Dados técnicos sem o cliente. */
+export function linhasTecnicas(m: DadosTecnicos): Linha[] {
   return [
-    { rotulo: "Cliente", valor: m.clienteNome },
     { rotulo: "Marca e modelo", valor: [m.marca, m.modelo].filter(Boolean).join(" ") || null },
     { rotulo: "Tipo de equipamento", valor: m.tipoEquipamento },
     {
@@ -40,7 +53,7 @@ export function linhasDadosGerais(m: Motor): Linha[] {
   ]
 }
 
-export function linhasBobinagem(b: Bobinagem): Linha[] {
+export function linhasBobinagem(b: Pick<Bobinagem, "passo" | "voltas" | "fio" | "ligacao" | "camada">): Linha[] {
   return [
     { rotulo: "Passo", valor: b.passo },
     { rotulo: "Voltas", valor: b.voltas === null ? null : String(b.voltas) },
@@ -52,11 +65,11 @@ export function linhasBobinagem(b: Bobinagem): Linha[] {
 
 const ORDEM = { UNICA: 0, TRABALHO: 0, AUXILIAR: 1 } as const
 
-export function ordenarBobinagens(bobinagens: Bobinagem[]): Bobinagem[] {
+export function ordenarBobinagens<T extends Pick<Bobinagem, "funcao">>(bobinagens: T[]): T[] {
   return [...bobinagens].sort((a, b) => ORDEM[a.funcao] - ORDEM[b.funcao])
 }
 
-export function tituloBobinagem(b: Bobinagem): string {
+export function tituloBobinagem(b: Pick<Bobinagem, "funcao">): string {
   return b.funcao === "UNICA" ? "Bobinagem" : b.funcao === "TRABALHO" ? "Bobina de trabalho" : "Bobina auxiliar"
 }
 

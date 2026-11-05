@@ -1,10 +1,24 @@
-import { ClipboardTextIcon, ImageIcon } from "@phosphor-icons/react/ssr"
+import { ImageIcon } from "@phosphor-icons/react/ssr"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { linhasBobinagem, linhasDadosGerais, ordenarBobinagens, tituloBobinagem } from "@/lib/ficha"
 import type { Bobinagem, Motor } from "@/lib/types"
 import { CartaoLinhas, TituloBloco } from "./info"
 
-function Vazio({ icone, titulo, apoio, acao }: { icone: React.ReactNode; titulo: string; apoio: string; acao: string }) {
+export function Vazio({
+  icone,
+  titulo,
+  apoio,
+  acao,
+  href,
+}: {
+  icone: React.ReactNode
+  titulo: string
+  apoio: string
+  acao: string
+  /** Quando existe, o botão leva para essa rota; sem ela, aparece desabilitado ("Em breve"). */
+  href?: string
+}) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-card bg-surface px-6 py-10 text-center">
       <span className="flex size-10 items-center justify-center rounded-[8px] bg-fill text-text-tertiary" aria-hidden="true">
@@ -14,9 +28,15 @@ function Vazio({ icone, titulo, apoio, acao }: { icone: React.ReactNode; titulo:
         <p className="text-sm font-bold">{titulo}</p>
         <p className="mt-1 text-xs text-text-tertiary">{apoio}</p>
       </div>
-      <Button disabled variant="secondary" className="h-[42px] text-[13px]">
-        {acao} <span className="text-xs font-normal">· Em breve</span>
-      </Button>
+      {href ? (
+        <Button asChild className="h-[42px] text-[13px]">
+          <Link href={href}>{acao}</Link>
+        </Button>
+      ) : (
+        <Button disabled variant="secondary" className="h-[42px] text-[13px]">
+          {acao} <span className="text-xs font-normal">· Em breve</span>
+        </Button>
+      )}
     </div>
   )
 }
@@ -50,17 +70,6 @@ export function PainelDados({ motor, bobinagens }: { motor: Motor; bobinagens: B
         <div className="rounded-card bg-surface px-4 py-6 text-center text-sm text-text-tertiary">Nenhuma O.S. ainda</div>
       </div>
     </div>
-  )
-}
-
-export function PainelOS() {
-  return (
-    <Vazio
-      icone={<ClipboardTextIcon size={20} />}
-      titulo="Nenhuma O.S. ainda"
-      apoio="Cada visita do motor à oficina vira uma O.S. separada."
-      acao="Nova O.S."
-    />
   )
 }
 

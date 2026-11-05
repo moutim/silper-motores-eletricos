@@ -49,11 +49,11 @@ export function CartaoMotor({ motor }: { motor: Motor }) {
             {bloqueado ? <span>Editar dados</span> : <Link href={`${href}/editar`}>Editar dados</Link>}
           </Button>
           <Button
-            disabled
-            title="Disponível em breve"
+            asChild={!bloqueado}
+            disabled={bloqueado}
             className="h-[42px] flex-1 text-[13px] md:flex-none md:px-6"
           >
-            Nova O.S.
+            {bloqueado ? <span>Nova O.S.</span> : <Link href={`${href}/os/nova`}>Nova O.S.</Link>}
           </Button>
           <MenuMaisMotor rastreio={motor.rastreio} ativo={motor.ativo} />
         </div>

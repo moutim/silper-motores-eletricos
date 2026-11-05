@@ -15,4 +15,5 @@ export interface MotorRepository {
 export interface OrdemServicoRepository {
   listar(): Promise<OrdemServico[]>
   doMotor(motorId: string): Promise<OrdemServico[]>
+  buscarPorId(id: string): Promise<OrdemServico | null>
 }
