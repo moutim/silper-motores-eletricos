@@ -5,13 +5,18 @@ import { NovoMotorConteudo } from "@/components/motores/novo-motor-conteudo"
 
 export const metadata: Metadata = { title: "Novo motor" }
 
+async function Janela({ searchParams }: { searchParams: Promise<{ base?: string }> }) {
+  const { base } = await searchParams
+  return <NovoMotorConteudo pagina abrirBase={base === "1"} />
+}
+
 /** Acesso direto (recarregar a página ou abrir o link): mesma janela, sobre a tela de Motores. */
-export default function NovoMotorPagina() {
+export default function NovoMotorPagina({ searchParams }: { searchParams: Promise<{ base?: string }> }) {
   return (
     <>
       <PageHeader titulo="Motores" />
       <Suspense>
-        <NovoMotorConteudo pagina />
+        <Janela searchParams={searchParams} />
       </Suspense>
     </>
   )

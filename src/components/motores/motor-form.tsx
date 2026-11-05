@@ -20,6 +20,7 @@ import { SeletorFotos } from "@/components/fotos/seletor-fotos"
 import { enviarVariasFotos } from "@/lib/envio-fotos"
 import { cadastrarMotor, editarMotorAcao, verificarRastreio } from "@/server/actions/motores"
 import { CampoLista, CampoPotencia, CampoTexto, TituloSecao } from "./campos"
+import { type BaseEscolhida, EscolherBase } from "./escolher-base"
 import { GrupoBobinagem } from "./grupo-bobinagem"
 import { Segmentado } from "./segmentado"
 
@@ -32,7 +33,7 @@ const CAMPOS_PASSO_1 = [
 ] as const
 
 type Props = { pagina?: boolean } & (
-  | { modo: "novo"; previsto: string }
+  | { modo: "novo"; previsto: string; abrirBase?: boolean }
   | { modo: "editar"; rastreio: string; versao: string; valores: MotorFormValues }
 )
 
@@ -64,6 +65,8 @@ export function MotorForm(props: Props) {
   const [enviandoFotos, setEnviandoFotos] = useState(false)
   /** Chave do último rastreio digitado que o servidor disse estar em uso. Bloqueia o Salvar. */
   const [emUso, setEmUso] = useState<string | null>(null)
+  /** Motor-base escolhido (1.3 e 1.4): os dados já estão no formulário; aqui fica só o vínculo. */
+  const [base, setBase] = useState<BaseEscolhida | null>(null)
 
   const bloqueado = !editar && modo === "MANUAL" && emUso !== null && normalizarRastreio(rastreioDigitado) === emUso
   const destinoPagina = props.modo === "editar" ? `/motores/${encodeURIComponent(props.rastreio)}` : "/motores"
@@ -95,6 +98,19 @@ export function MotorForm(props: Props) {
     }
   }
 
+  /** Copia dados técnicos e bobinagem do motor-base; mantém rastreio e cliente já digitados (RN-10). */
+  function usarBase(escolhida: BaseEscolhida, valores: MotorFormValues) {
+    const atual = getValues()
+    form.reset({
+      ...valores,
+      rastreioModo: atual.rastreioModo,
+      rastreio: atual.rastreio,
+      clienteNome: atual.clienteNome,
+    })
+    setBase(escolhida)
+    toast.success(`Dados copiados de ${escolhida.rastreio}. Preencha o cliente.`)
+  }
+
   async function continuar() {
     const ok = await form.trigger([...CAMPOS_PASSO_1])
     if (!ok) return
@@ -124,7 +140,7 @@ export function MotorForm(props: Props) {
           }
           return
         }
-        const r = await cadastrarMotor(valores)
+        const r = await cadastrarMotor(valores, base?.id ?? null)
         if (r.ok) {
           toast.success(`Motor cadastrado: ${r.rastreio}`)
           if (fotosEquipamento.length + fotosEsquema.length > 0) {
@@ -141,6 +157,7 @@ export function MotorForm(props: Props) {
           setFotosEquipamento([])
           setFotosEsquema([])
           form.reset(valoresIniciais())
+          setBase(null)
           setPasso(1)
           setEmUso(null)
           aoFechar()
@@ -319,17 +336,13 @@ export function MotorForm(props: Props) {
                   )}
                 </section>
 
-                <section className="flex flex-col gap-2" aria-label="Motor-base">
-                  <TituloSecao>Partir de um motor já cadastrado (opcional)</TituloSecao>
-                  <button
-                    type="button"
-                    disabled
-                    className="flex h-11 items-center justify-between rounded-field border border-border bg-surface px-3 text-[13.5px] text-text-tertiary opacity-70 md:h-10 md:text-[13px]"
-                  >
-                    Escolher motor-base
-                    <span className="text-xs">Em breve</span>
-                  </button>
-                </section>
+                <EscolherBase
+                  base={base}
+                  aoUsar={usarBase}
+                  aoRemover={() => setBase(null)}
+                  abrirInicialmente={props.modo === "novo" && !!props.abrirBase}
+                  desabilitado={salvando}
+                />
               </>
             )}
 

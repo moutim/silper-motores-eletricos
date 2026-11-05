@@ -6,7 +6,7 @@ import { motorFormSchema, type MotorFormValues } from "@/lib/motor-schema"
 import { mensagemRastreioEmUso, validarRastreioDigitado } from "@/lib/rastreio"
 import { contextoDaSessao, NaoAutenticadoError } from "../contexto"
 import { criarMotor, rastreioOcupado } from "../rastreio-service"
-import { invalidarCacheMotores } from "../repositories/sheets-motor-repository"
+import { invalidarCacheMotores, SheetsMotorRepository } from "../repositories/sheets-motor-repository"
 import { alterarAtivo, editarMotor } from "../motor-service"
 import { PortaDadosSheets } from "../sheets/porta-dados"
 import { PortaMotoresSheets } from "../sheets/porta-motores"
@@ -42,7 +42,10 @@ export async function verificarRastreio(valor: string): Promise<ResultadoVerific
 }
 
 /** O servidor é a autoridade: revalida tudo e gera/confere o rastreio dentro do serviço. */
-export async function cadastrarMotor(valores: MotorFormValues): Promise<ResultadoCadastro> {
+export async function cadastrarMotor(
+  valores: MotorFormValues,
+  modeloOrigemId?: string | null,
+): Promise<ResultadoCadastro> {
   const parsed = motorFormSchema.safeParse(valores)
   if (!parsed.success) return { ok: false, erro: "Revise os campos e tente de novo." }
   const v = parsed.data
@@ -50,8 +53,12 @@ export async function cadastrarMotor(valores: MotorFormValues): Promise<Resultad
   try {
     const { planilha, usuario } = await contextoDaSessao()
     const ctx = { usuario, agora: new Date().toISOString() }
+    // Motor-base (RN-10): os dados já vieram copiados no formulário; aqui só se guarda o vínculo, e só se o motor existir.
+    const modelo = modeloOrigemId
+      ? ((await new SheetsMotorRepository(planilha).listar()).find((m) => m.id === modeloOrigemId)?.id ?? null)
+      : null
     const montar = (rastreio: string, origem: "AUTOMATICO" | "MANUAL") => {
-      const motor = montarMotor(v, rastreio, origem, ctx)
+      const motor = { ...montarMotor(v, rastreio, origem, ctx), modeloOrigemId: modelo }
       return { motor, bobinagens: montarBobinagens(v, motor.id, ctx) }
     }
     const porta = new PortaMotoresSheets(planilha)
