@@ -1,10 +1,11 @@
-import { EngineIcon } from "@phosphor-icons/react/ssr"
+import { CaretRightIcon, EngineIcon } from "@phosphor-icons/react/ssr"
+import Link from "next/link"
 import { nomeCurto } from "@/lib/motor-format"
 import { listarMotoresAtivos } from "@/server/motores"
 
 /**
- * TEMPORÁRIA (Fase 2): lista simples para conferir os cadastros. A busca de verdade (2.1) e a ficha
- * clicável (Fase 3) substituem este componente.
+ * TEMPORÁRIA (Fase 2): lista simples para conferir os cadastros. A busca de verdade (2.1) a substitui
+ * na Fase 6. As linhas já abrem a ficha (Fase 3).
  */
 export async function ListaMotoresTemporaria() {
   const motores = await listarMotoresAtivos()
@@ -20,7 +21,11 @@ export async function ListaMotoresTemporaria() {
       </h2>
       <ul className="overflow-hidden rounded-card bg-surface px-4">
         {motores.map((m, i) => (
-          <li key={m.id} className="flex items-center gap-3">
+          <li key={m.id}>
+            <Link
+              href={`/motores/${encodeURIComponent(m.rastreio)}`}
+              className="flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
             <span
               className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#3A55B6] text-white"
               aria-hidden="true"
@@ -37,7 +42,9 @@ export async function ListaMotoresTemporaria() {
                 </span>
               </span>
               <span className="shrink-0 text-xs tabular-nums text-text-tertiary">{m.rastreio}</span>
+              <CaretRightIcon size={14} className="shrink-0 text-text-tertiary" aria-hidden="true" />
             </span>
+            </Link>
           </li>
         ))}
       </ul>

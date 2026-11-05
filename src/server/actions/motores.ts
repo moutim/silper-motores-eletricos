@@ -7,6 +7,8 @@ import { mensagemRastreioEmUso, validarRastreioDigitado } from "@/lib/rastreio"
 import { contextoDaSessao, NaoAutenticadoError } from "../contexto"
 import { criarMotor, rastreioOcupado } from "../rastreio-service"
 import { invalidarCacheMotores } from "../repositories/sheets-motor-repository"
+import { alterarAtivo, editarMotor } from "../motor-service"
+import { PortaDadosSheets } from "../sheets/porta-dados"
 import { PortaMotoresSheets } from "../sheets/porta-motores"
 
 export type ResultadoVerificacao =
@@ -67,5 +69,59 @@ export async function cadastrarMotor(valores: MotorFormValues): Promise<Resultad
   } catch (e) {
     console.error("[cadastrarMotor]", e)
     return { ok: false, erro: e instanceof NaoAutenticadoError ? MSG_SESSAO : MSG_FALHA }
+  }
+}
+
+export type ResultadoEdicaoAcao = { ok: true } | { ok: false; erro: string; conflito?: boolean }
+
+const MSG_EDICAO = {
+  NAO_ENCONTRADO: "Motor não encontrado.",
+  DESATIVADO: "Este motor está desativado. Reative para editar.",
+  CONFLITO: "Este motor foi alterado por outra pessoa. Feche e abra a ficha de novo para ver as mudanças.",
+} as const
+
+/** Edita a ficha (3.8). O servidor revalida tudo e recusa se a ficha mudou desde que a tela abriu. */
+export async function editarMotorAcao(
+  rastreio: string,
+  valores: MotorFormValues,
+  versao: string,
+): Promise<ResultadoEdicaoAcao> {
+  const parsed = motorFormSchema.safeParse(valores)
+  if (!parsed.success) return { ok: false, erro: "Revise os campos e tente de novo." }
+  try {
+    const { planilha, usuario } = await contextoDaSessao()
+    const r = await editarMotor(
+      new PortaDadosSheets(planilha),
+      { usuario, agora: new Date().toISOString() },
+      rastreio,
+      parsed.data,
+      versao,
+    )
+      invalidarCacheMotores(planilha.spreadsheetId)
+    if (!r.ok) return { ok: false, erro: MSG_EDICAO[r.erro], conflito: r.erro === "CONFLITO" }
+    revalidatePath("/motores")
+    revalidatePath("/motores/[rastreio]", "page")
+    revalidatePath("/")
+    return { ok: true }
+  } catch (e) {
+    console.error("[editarMotorAcao]", e)
+    return { ok: false, erro: e instanceof NaoAutenticadoError ? MSG_SESSAO : MSG_FALHA }
+  }
+}
+
+/** Desativar (RN-17) ou reativar um motor. Nunca apaga. */
+export async function alterarAtivoMotor(rastreio: string, ativo: boolean): Promise<ResultadoEdicaoAcao> {
+  try {
+    const { planilha, usuario } = await contextoDaSessao()
+    const r = await alterarAtivo(new PortaDadosSheets(planilha), { usuario, agora: new Date().toISOString() }, rastreio, ativo)
+    invalidarCacheMotores(planilha.spreadsheetId)
+    if (!r.ok) return { ok: false, erro: MSG_EDICAO.NAO_ENCONTRADO }
+    revalidatePath("/motores")
+    revalidatePath("/motores/[rastreio]", "page")
+    revalidatePath("/")
+    return { ok: true }
+  } catch (e) {
+    console.error("[alterarAtivoMotor]", e)
+    return { ok: false, erro: e instanceof NaoAutenticadoError ? MSG_SESSAO : "Não foi possível concluir. Tente de novo." }
   }
 }

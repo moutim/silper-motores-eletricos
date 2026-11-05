@@ -40,6 +40,28 @@ export class Planilha {
     return (res.data.values ?? []).filter((r) => r.some((c) => c !== "")).map((r) => fromRow(def, r))
   }
 
+  /** Como `ler`, mas devolve também a linha (1-based) de cada registro. Linhas vazias não contam, mas ocupam posição. */
+  async lerLinhas<T extends object>(def: TableDef<T>): Promise<{ linha: number; obj: T }[]> {
+    const res = await this.sheets.spreadsheets.values.get({
+      spreadsheetId: this.spreadsheetId,
+      range: `${def.tab}!A2:ZZ`,
+    })
+    return (res.data.values ?? [])
+      .map((r, i) => ({ r, linha: i + 2 }))
+      .filter(({ r }) => r.some((c) => c !== ""))
+      .map(({ r, linha }) => ({ linha, obj: fromRow(def, r) }))
+  }
+
+  /** Sobrescreve a linha inteira (`linha` é 1-based). */
+  async atualizarLinha<T extends object>(def: TableDef<T>, linha: number, obj: T): Promise<void> {
+    await this.sheets.spreadsheets.values.update({
+      spreadsheetId: this.spreadsheetId,
+      range: `${def.tab}!A${linha}`,
+      valueInputOption: "RAW",
+      requestBody: { values: [toRow(def, obj)] as Cell[][] },
+    })
+  }
+
   /** Acrescenta linhas ao fim. Retorna a linha (1-based) da primeira linha gravada. */
   async acrescentar<T extends object>(def: TableDef<T>, objs: T[]): Promise<number> {
     if (objs.length === 0) return 0

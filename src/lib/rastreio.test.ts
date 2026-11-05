@@ -15,6 +15,7 @@ describe("rastreio", () => {
     expect(validarRastreioDigitado("x".repeat(33)).ok).toBe(false)
     expect(validarRastreioDigitado("A B").ok).toBe(false)
     expect(validarRastreioDigitado("A/B").ok).toBe(false)
+    expect(validarRastreioDigitado("Novo").ok).toBe(false) // colide com /motores/novo
   })
 
   it("formata com prefixo e dígitos", () => {

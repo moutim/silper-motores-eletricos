@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -22,10 +23,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className="h-full antialiased">
       <body suppressHydrationWarning className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
-          <Toaster />
-        </ThemeProvider>
+        {/* O tema lê a rota (login é sempre claro); em rotas dinâmicas isso só existe na requisição. */}
+        <Suspense fallback={null}>
+          <ThemeProvider>
+            <TooltipProvider>{children}</TooltipProvider>
+            <Toaster />
+          </ThemeProvider>
+        </Suspense>
       </body>
     </html>
   )

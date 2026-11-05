@@ -5,6 +5,9 @@ export function normalizarRastreio(valor: string): string {
   return valor.trim().toLowerCase()
 }
 
+/** Nomes que colidem com rotas (/motores/novo). */
+const RESERVADOS = new Set(["novo"])
+
 export type ResultadoRastreio = { ok: true; valor: string } | { ok: false; erro: string }
 
 /** Valida um rastreio digitado. Não verifica duplicidade: isso é do servidor. */
@@ -16,6 +19,9 @@ export function validarRastreioDigitado(entrada: string): ResultadoRastreio {
   }
   if (!padraoDigitado.test(valor)) {
     return { ok: false, erro: "Use só letras, números e os símbolos - _ ." }
+  }
+  if (RESERVADOS.has(valor.toLowerCase())) {
+    return { ok: false, erro: "Esse nome é reservado pelo sistema. Digite outro." }
   }
   return { ok: true, valor }
 }

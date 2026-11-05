@@ -35,6 +35,14 @@ Status: **decidido** (você disse), **proposta** (implementada como padrão, fá
 | D-39 | **Fotos** e **motor-base** aparecem desabilitados com "Em breve" (Fases 5 e 6). Ao salvar, não abre a etiqueta (Fase 7). | proposta |
 | D-40 | A sessão expõe o `accessToken` do Google ao navegador (`/api/auth/session`), como no financeiro-os. Escopo só `drive.file` da própria conta. Se preferir, passo a lê-lo só no servidor (`getToken`). | aberto |
 | D-41 | Foram gravados **2 motores de teste** (`SIL-000001` e `SIL-000002`, clientes "TESTE... (apagar)") na planilha real durante a validação. O `npm run sheet:seed` apaga tudo. | informativo |
+| D-42 | **Fase 3 (ficha e edição).** Ficha em `/motores/[rastreio]` (aba em `?aba=`), edição em `/motores/[rastreio]/editar` (interceptada, com acesso direto que mostra a ficha por trás). **Reativar motor** foi incluído no menu "mais" (o doc só fala em desativar). Valores vazios aparecem como "Não informado". Monofásico mostra as duas bobinas em linhas separadas (o protótipo junta "Passo · Voltas"). Desktop tem o link "‹ Motores" acima do cartão, como no protótipo. | proposta |
+| D-43 | **Edição simultânea:** o servidor compara `atualizadoEm` lido ao abrir com o atual e recusa com "Este motor foi alterado por outra pessoa..." (toast com Recarregar). Há uma janela mínima entre ler e gravar; para duas pessoas no mesmo segundo o Sheets não oferece trava. | proposta |
+| D-44 | **Troca de tipo ao editar:** trifásico para monofásico converte a bobinagem única em "trabalho" e cria a "auxiliar"; o inverso converte "trabalho" em "única" e **esvazia** a "auxiliar" (os dados dela se perdem, como o aviso diz). | proposta |
+| D-45 | **kW:** CV x 0,7355 e HP x 0,7457; abaixo de 1 kW usa 2 casas, a partir de 1 kW usa 1 ("5 CV · 3,7 kW"). Só exibição, nada é gravado. | proposta |
+| D-46 | **"Nova O.S." e "Gerar etiqueta"** ficam desabilitados ("Em breve") até as Fases 4 e 7. As abas O.S. e Fotos mostram estado vazio. | proposta |
+| D-47 | O rastreio digitado **`novo` é reservado** (colide com `/motores/novo`). | proposta |
+| D-48 | A **altura da janela** de cadastro/edição é fixa (até 760 px) para o botão Salvar não mudar de lugar quando o conteúdo cresce (por exemplo ao trocar para monofásico). Desvio pequeno do doc 02, que não fixa a altura. | proposta |
+| D-49 | O `ThemeProvider` (que trava o claro no login via `usePathname`) ficou dentro de um `Suspense` na raiz: sem isso o Next 16 bloqueia o pré-render das rotas dinâmicas (`/motores/[rastreio]`). Efeito colateral: aviso de desenvolvimento do React sobre a tag `<script>` do `next-themes` em renderizações do cliente. Não afeta o uso. Alternativa se incomodar: layouts raiz separados para o login. | aberto |
 
 ## Contradições e lacunas nos documentos
 

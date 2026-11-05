@@ -13,7 +13,7 @@ interface Props {
   aoFechar: () => void
   /** Barra de ações: fixa embaixo na gaveta; no rodapé, à direita, na janela. */
   rodape: React.ReactNode
-  /** Largura da janela no desktop (940 px nos cadastros, 600 px na Nova O.S.). */
+  /** Largura da janela no desktop (940 px nos cadastros, 600 px na Nova O.S.). A altura é fixa para o rodapé não pular quando o conteúdo muda. */
   larguraJanela?: number
   children: React.ReactNode
 }
@@ -70,7 +70,7 @@ export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, larguraJan
       <DialogContent
         showCloseButton={false}
         style={{ width: larguraJanela }}
-        className="flex max-h-[calc(100dvh-48px)] max-w-[calc(100vw-48px)] flex-col gap-0 rounded-card p-0 ring-0 sm:max-w-[calc(100vw-48px)]"
+        className="flex h-[min(760px,calc(100dvh-48px))] max-w-[calc(100vw-48px)] flex-col gap-0 rounded-card p-0 ring-0 sm:max-w-[calc(100vw-48px)]"
       >
         <div className="flex items-center justify-between gap-3 px-6 pb-4 pt-5">
           <DialogTitle className={classeTitulo}>{titulo}</DialogTitle>

@@ -46,21 +46,35 @@ export function montarMotor(
   }
 }
 
-/** RN-12: trifásico grava uma bobinagem (UNICA); monofásico grava duas (TRABALHO e AUXILIAR). */
-export function montarBobinagens(v: MotorFormValues, motorId: string, ctx: Contexto): Bobinagem[] {
-  const base = { motorId, criadoEm: ctx.agora, atualizadoEm: ctx.agora, criadoPor: ctx.usuario, atualizadoPor: ctx.usuario }
-  const id = ctx.novoId ?? crypto.randomUUID.bind(crypto)
-  const de = (g: MotorFormValues["trabalho"], funcao: Bobinagem["funcao"]): Bobinagem => ({
-    id: id(),
-    ...base,
+export type GrupoBobina = MotorFormValues["trabalho"]
+
+/** Converte um grupo do formulário em `Bobinagem`. */
+export function bobinaDoFormulario(
+  g: GrupoBobina,
+  funcao: Bobinagem["funcao"],
+  motorId: string,
+  ctx: Contexto,
+  base?: Pick<Bobinagem, "id" | "criadoEm" | "criadoPor">,
+): Bobinagem {
+  return {
+    id: base?.id ?? (ctx.novoId ?? crypto.randomUUID.bind(crypto))(),
+    motorId,
     funcao,
     passo: nul(g.passo),
     voltas: g.voltas.trim() === "" ? null : Number(g.voltas),
     fio: nul(g.fio),
     ligacao: (g.ligacao || null) as Ligacao | null,
     camada: (g.camada || null) as Camada | null,
-  })
+    criadoEm: base?.criadoEm ?? ctx.agora,
+    criadoPor: base?.criadoPor ?? ctx.usuario,
+    atualizadoEm: ctx.agora,
+    atualizadoPor: ctx.usuario,
+  }
+}
+
+/** RN-12: trifásico grava uma bobinagem (UNICA); monofásico grava duas (TRABALHO e AUXILIAR). */
+export function montarBobinagens(v: MotorFormValues, motorId: string, ctx: Contexto): Bobinagem[] {
   return v.tipoMotor === "MONOFASICO"
-    ? [de(v.trabalho, "TRABALHO"), de(v.auxiliar, "AUXILIAR")]
-    : [de(v.trabalho, "UNICA")]
+    ? [bobinaDoFormulario(v.trabalho, "TRABALHO", motorId, ctx), bobinaDoFormulario(v.auxiliar, "AUXILIAR", motorId, ctx)]
+    : [bobinaDoFormulario(v.trabalho, "UNICA", motorId, ctx)]
 }
