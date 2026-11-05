@@ -1,0 +1,207 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ==========================================================================
+   1) Tokens do protótipo: cópia de docs/tokens.css SEM alteração de valores.
+   ========================================================================== */
+/* Tokens extraídos do protótipo (fonte de verdade). Use em app/globals.css */
+
+:root,.dark {
+  --background:var(--bg);
+  --foreground:var(--text-primary);
+  --card:var(--surface);
+  --card-foreground:var(--text-primary);
+  --muted-foreground:var(--text-tertiary);
+  --muted:var(--bg-2);
+  --border:var(--separator);
+  --input:var(--separator-opaque);
+  --primary:#C94F07;
+  --primary-foreground:#FFFFFF;
+  --accent:#F47A22;
+  --accent-foreground:#14161C;
+  --secondary:var(--blue-light);
+  --secondary-foreground:var(--blue-text);
+  --ring:var(--blue);
+  --destructive:#FF3B30;
+  --copper:#D9661F;
+  --radius:1rem;
+}
+
+:root {
+  --bg:#F2F2F7;
+  --bg-2:#E5E5EA;
+  --surface:#FFFFFF;
+  --surface-glass:rgba(255,255,255,.72);
+  --text-primary:#000000;
+  --text-secondary:#3C3C43;
+  --text-tertiary:#6C6C70;
+  --separator:rgba(60,60,67,.12);
+  --separator-opaque:#C6C6C8;
+  --separator-subtle:rgba(60,60,67,.07);
+  --orange-light:rgba(244,122,34,.14);
+  --orange-text:#A9490F;
+  --blue-light:rgba(58,85,182,.12);
+  --blue-text:#2E3A9E;
+  --blue:#3A55B6;
+  --navy:#14194A;
+}
+
+.dark {
+  --bg:#000000;
+  --bg-2:#2C2C2E;
+  --surface:#1C1C1E;
+  --surface-glass:rgba(28,28,30,.72);
+  --text-primary:#FFFFFF;
+  --text-secondary:#EBEBF5;
+  --text-tertiary:#98989D;
+  --separator:rgba(84,84,88,.65);
+  --separator-opaque:#38383A;
+  --separator-subtle:rgba(255,255,255,.07);
+  --orange-light:rgba(244,122,34,.2);
+  --orange-text:#FFB067;
+  --blue-light:rgba(127,151,240,.2);
+  --blue-text:#9DB0FF;
+  --blue:#7F97F0;
+  --navy:#9DB0FF;
+}
+
+:root {
+  --fill:rgba(116,116,128,.12);
+  --tq:rgba(60,60,67,.3);
+}
+
+.dark {
+  --fill:rgba(118,118,128,.24);
+  --tq:rgba(235,235,245,.3);
+}
+
+:root {
+  --dim:#8E8E93;
+}
+
+:root {
+  --green-light:rgba(52,199,89,.14);
+  --green-text:#1B7F3A;
+  --gray-light:rgba(116,116,128,.14);
+  --gray-text:#3C3C43;
+}
+
+.dark {
+  --green-light:rgba(52,199,89,.2);
+  --green-text:#5EDC8A;
+  --gray-light:rgba(118,118,128,.28);
+  --gray-text:#EBEBF5;
+}
+
+/* ==========================================================================
+   2) Ponte para o shadcn/ui e o Tailwind v4 (só mapeamento, nenhum valor novo
+      de cor). Variáveis que o shadcn espera e que o tokens.css não define
+      apontam para os tokens do protótipo.
+   ========================================================================== */
+:root,
+.dark {
+  --popover: var(--surface);
+  --popover-foreground: var(--text-primary);
+  --sidebar: var(--surface-glass);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--orange-light);
+  --sidebar-accent-foreground: var(--orange-text);
+  --sidebar-border: var(--separator);
+  --sidebar-ring: var(--ring);
+}
+
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* shadcn */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* tokens do protótipo (bg-surface, text-tertiary, bg-orange-light ...) */
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-surface: var(--surface);
+  --color-surface-glass: var(--surface-glass);
+  --color-fill: var(--fill);
+  --color-tq: var(--tq);
+  --color-dim: var(--dim);
+  --color-copper: var(--copper);
+  --color-navy: var(--navy);
+  --color-blue: var(--blue);
+  --color-blue-light: var(--blue-light);
+  --color-blue-text: var(--blue-text);
+  --color-orange-light: var(--orange-light);
+  --color-orange-text: var(--orange-text);
+  --color-green-light: var(--green-light);
+  --color-green-text: var(--green-text);
+  --color-gray-light: var(--gray-light);
+  --color-gray-text: var(--gray-text);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-separator: var(--separator);
+  --color-separator-opaque: var(--separator-opaque);
+  --color-separator-subtle: var(--separator-subtle);
+
+  /* raios do doc 02, seção 3 */
+  --radius-field: 12px;
+  --radius-card: 22px;
+  --radius-segment: 10px;
+  --radius-segment-item: 8px;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Acessibilidade: animações param com prefers-reduced-motion (doc 02, seção 7) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
