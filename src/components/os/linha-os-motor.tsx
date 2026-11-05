@@ -1,6 +1,6 @@
 import { CaretRightIcon, ClipboardTextIcon } from "@phosphor-icons/react/ssr"
 import Link from "next/link"
-import { formatarData } from "@/lib/format"
+import { formatarData, formatarMoeda } from "@/lib/format"
 import { nomeCurto } from "@/lib/motor-format"
 import type { Motor, OrdemServico } from "@/lib/types"
 
@@ -13,16 +13,19 @@ export function LinhaOSMotor({
   motor,
   ultima,
   direita = "rastreio",
+  href,
 }: {
   os: OrdemServico
   motor: Motor
   ultima: boolean
-  direita?: "rastreio" | "data"
+  direita?: "rastreio" | "data" | "data-valor"
+  /** Destino da linha; padrão: a ficha do motor, aba O.S., com ela selecionada. */
+  href?: string
 }) {
   return (
     <li>
       <Link
-        href={`/motores/${encodeURIComponent(motor.rastreio)}?aba=os&os=${os.id}`}
+        href={href ?? `/motores/${encodeURIComponent(motor.rastreio)}?aba=os&os=${os.id}`}
         className="flex items-center gap-3 px-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span
@@ -38,9 +41,16 @@ export function LinhaOSMotor({
               {[nomeCurto(motor), motor.clienteNome].filter(Boolean).join(" · ")}
             </span>
           </span>
-          <span className="shrink-0 text-xs tabular-nums text-text-tertiary">
-            {direita === "data" ? formatarData(os.dataEntrada) : motor.rastreio}
-          </span>
+          {direita === "data-valor" ? (
+            <span className="shrink-0 text-right text-xs tabular-nums text-text-tertiary">
+              <span className="block">{formatarData(os.dataEntrada)}</span>
+              {os.valorNota !== null && <span className="block">{formatarMoeda(os.valorNota)}</span>}
+            </span>
+          ) : (
+            <span className="shrink-0 text-xs tabular-nums text-text-tertiary">
+              {direita === "data" ? formatarData(os.dataEntrada) : motor.rastreio}
+            </span>
+          )}
           <CaretRightIcon size={14} className="shrink-0 text-text-tertiary" aria-hidden="true" />
         </span>
       </Link>

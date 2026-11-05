@@ -52,6 +52,10 @@ export async function ResultadosBusca({ parametros }: { parametros: ParametrosBu
       <BarraBusca key="busca" q={q} filtros={filtros} opcoes={opcoes} modo="digitando" />
       <CartaoCadastrar />
 
+      <p className="sr-only" role="status">
+        {r.motores.length} motores{buscando ? `, ${r.ordens.length} ordens de serviço` : ""}
+      </p>
+
       {!buscando && motores.length === 0 && (
         <p className="px-1 text-sm text-text-tertiary">Nenhum motor ainda. Cadastre o primeiro.</p>
       )}
