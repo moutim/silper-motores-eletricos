@@ -1,0 +1,88 @@
+/* Tokens extraídos do protótipo (fonte de verdade). Use em app/globals.css */
+
+:root,.dark {
+  --background:var(--bg);
+  --foreground:var(--text-primary);
+  --card:var(--surface);
+  --card-foreground:var(--text-primary);
+  --muted-foreground:var(--text-tertiary);
+  --muted:var(--bg-2);
+  --border:var(--separator);
+  --input:var(--separator-opaque);
+  --primary:#C94F07;
+  --primary-foreground:#FFFFFF;
+  --accent:#F47A22;
+  --accent-foreground:#14161C;
+  --secondary:var(--blue-light);
+  --secondary-foreground:var(--blue-text);
+  --ring:var(--blue);
+  --destructive:#FF3B30;
+  --copper:#D9661F;
+  --radius:1rem;
+}
+
+:root {
+  --bg:#F2F2F7;
+  --bg-2:#E5E5EA;
+  --surface:#FFFFFF;
+  --surface-glass:rgba(255,255,255,.72);
+  --text-primary:#000000;
+  --text-secondary:#3C3C43;
+  --text-tertiary:#6C6C70;
+  --separator:rgba(60,60,67,.12);
+  --separator-opaque:#C6C6C8;
+  --separator-subtle:rgba(60,60,67,.07);
+  --orange-light:rgba(244,122,34,.14);
+  --orange-text:#A9490F;
+  --blue-light:rgba(58,85,182,.12);
+  --blue-text:#2E3A9E;
+  --blue:#3A55B6;
+  --navy:#14194A;
+}
+
+.dark {
+  --bg:#000000;
+  --bg-2:#2C2C2E;
+  --surface:#1C1C1E;
+  --surface-glass:rgba(28,28,30,.72);
+  --text-primary:#FFFFFF;
+  --text-secondary:#EBEBF5;
+  --text-tertiary:#98989D;
+  --separator:rgba(84,84,88,.65);
+  --separator-opaque:#38383A;
+  --separator-subtle:rgba(255,255,255,.07);
+  --orange-light:rgba(244,122,34,.2);
+  --orange-text:#FFB067;
+  --blue-light:rgba(127,151,240,.2);
+  --blue-text:#9DB0FF;
+  --blue:#7F97F0;
+  --navy:#9DB0FF;
+}
+
+:root {
+  --fill:rgba(116,116,128,.12);
+  --tq:rgba(60,60,67,.3);
+}
+
+.dark {
+  --fill:rgba(118,118,128,.24);
+  --tq:rgba(235,235,245,.3);
+}
+
+:root {
+  --dim:#8E8E93;
+}
+
+:root {
+  --green-light:rgba(52,199,89,.14);
+  --green-text:#1B7F3A;
+  --gray-light:rgba(116,116,128,.14);
+  --gray-text:#3C3C43;
+}
+
+.dark {
+  --green-light:rgba(52,199,89,.2);
+  --green-text:#5EDC8A;
+  --gray-light:rgba(118,118,128,.28);
+  --gray-text:#EBEBF5;
+}
