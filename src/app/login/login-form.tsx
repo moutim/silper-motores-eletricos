@@ -1,17 +1,10 @@
 "use client"
 
-import {
-  ClipboardTextIcon,
-  DevicesIcon,
-  GearSixIcon,
-  SpinnerIcon,
-  WarningCircleIcon,
-} from "@phosphor-icons/react"
+import { SpinnerIcon, WarningCircleIcon } from "@phosphor-icons/react"
 import { signIn } from "next-auth/react"
 import { useState } from "react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 
 interface Aviso {
   titulo: string
@@ -22,7 +15,7 @@ interface Aviso {
 
 const AVISOS: Record<string, Aviso> = {
   sem_acesso: {
-    titulo: "Esta conta não tem acesso",
+    titulo: "Conta sem acesso",
     texto: "Esta conta não tem acesso. Fale com o responsável.",
     trocarConta: true,
   },
@@ -50,27 +43,6 @@ const AVISO_GENERICO: Aviso = {
   texto: "Aguarde um instante e tente novamente. Se continuar, avise o responsável.",
 }
 
-const PONTOS = [
-  {
-    Icone: GearSixIcon,
-    cor: "bg-[#3A55B6]",
-    titulo: "Ficha técnica de cada motor",
-    apoio: "Bobinagem e dados gerais, sempre à mão",
-  },
-  {
-    Icone: ClipboardTextIcon,
-    cor: "bg-[#EE6B10]",
-    titulo: "Histórico de ordens de serviço",
-    apoio: "Cada visita à oficina em um registro",
-  },
-  {
-    Icone: DevicesIcon,
-    cor: "bg-[#34C759]",
-    titulo: "Celular e computador",
-    apoio: "Os mesmos dados nos dois",
-  },
-]
-
 export function LoginForm({ next, erro }: { next: string; erro: string | null }) {
   const [entrando, setEntrando] = useState(false)
   const [erroVisivel, setErroVisivel] = useState(erro)
@@ -85,59 +57,31 @@ export function LoginForm({ next, erro }: { next: string; erro: string | null })
   }
 
   return (
-    <Card className="w-full gap-0 p-0">
-      <div className="px-4 pb-4 pt-5">
-        <h1 className="text-[21px] font-bold leading-[1.15] tracking-[-0.02em] md:text-2xl">Entrar</h1>
-        <p className="mt-1.5 text-sm text-text-tertiary">
-          Cadastro de motores e histórico de ordens de serviço da oficina.
-        </p>
-      </div>
+    <div className="flex flex-col gap-3">
+      {aviso && (
+        <Alert className="border-0 bg-orange-light text-orange-text">
+          <WarningCircleIcon size={18} aria-hidden="true" />
+          <AlertTitle className="font-semibold">{aviso.titulo}</AlertTitle>
+          <AlertDescription className="text-orange-text">{aviso.texto}</AlertDescription>
+        </Alert>
+      )}
 
-      <ul className="px-4">
-        {PONTOS.map(({ Icone, cor, titulo, apoio }, i) => (
-          <li key={titulo} className="flex items-center gap-3">
-            <span
-              className={`flex size-[30px] shrink-0 items-center justify-center rounded-[8px] text-white ${cor}`}
-              aria-hidden="true"
-            >
-              <Icone size={18} />
-            </span>
-            <span
-              className={`min-w-0 flex-1 py-2.5 ${i < PONTOS.length - 1 ? "border-b border-separator" : ""}`}
-            >
-              <span className="block text-sm font-semibold">{titulo}</span>
-              <span className="block text-xs text-text-tertiary">{apoio}</span>
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-col gap-3 px-4 pb-4 pt-3">
-        {aviso && (
-          <Alert className="border-0 bg-orange-light text-orange-text">
-            <WarningCircleIcon size={18} aria-hidden="true" />
-            <AlertTitle className="font-semibold">{aviso.titulo}</AlertTitle>
-            <AlertDescription className="text-orange-text">{aviso.texto}</AlertDescription>
-          </Alert>
+      <Button onClick={entrar} disabled={entrando} aria-busy={entrando} className="w-full">
+        {entrando ? (
+          <>
+            <SpinnerIcon className="animate-spin" aria-hidden="true" />
+            Entrando...
+          </>
+        ) : (
+          <>
+            <GoogleIcone />
+            {aviso?.trocarConta ? "Trocar de conta" : "Entrar com Google"}
+          </>
         )}
+      </Button>
 
-        <Button onClick={entrar} disabled={entrando} aria-busy={entrando} className="w-full">
-          {entrando ? (
-            <>
-              <SpinnerIcon className="animate-spin" aria-hidden="true" />
-              Entrando...
-            </>
-          ) : (
-            <>
-              <GoogleIcone />
-              {aviso?.trocarConta ? "Trocar de conta" : "Entrar com Google"}
-            </>
-          )}
-        </Button>
-
-        <p className="text-center text-xs text-text-tertiary">Use a conta Google da Silper.</p>
-      </div>
-    </Card>
+      <p className="text-center text-xs text-text-tertiary">Use a conta Google da Silper.</p>
+    </div>
   )
 }
 
