@@ -14,6 +14,17 @@ export function clientesGoogle(accessToken: string, refreshToken?: string) {
 
 export type Sheets = ReturnType<typeof clientesGoogle>["sheets"]
 
+/** 0 -> "A", 25 -> "Z", 26 -> "AA". */
+export function letraDaColuna(indice: number): string {
+  let n = indice
+  let s = ""
+  do {
+    s = String.fromCharCode(65 + (n % 26)) + s
+    n = Math.floor(n / 26) - 1
+  } while (n >= 0)
+  return s
+}
+
 /** Acesso tabular a uma planilha. Lê com A2:ZZ (sem o cabeçalho) e grava sempre em RAW. */
 export class Planilha {
   constructor(
@@ -42,6 +53,39 @@ export class Planilha {
     const alvo = res.data.updates?.updatedRange ?? ""
     const m = /!A(\d+)/.exec(alvo)
     return m ? Number(m[1]) : 0
+  }
+
+  /** Valores de uma coluna (sem o cabeçalho), na ordem das linhas: o índice i é a linha i + 2. Vazios viram "". */
+  async lerColuna<T extends object>(def: TableDef<T>, key: keyof T & string): Promise<string[]> {
+    const letra = letraDaColuna(def.cols.findIndex((c) => c.key === key))
+    const res = await this.sheets.spreadsheets.values.get({
+      spreadsheetId: this.spreadsheetId,
+      range: `${def.tab}!${letra}2:${letra}`,
+    })
+    return (res.data.values ?? []).map((r) => (r[0] === undefined || r[0] === null ? "" : String(r[0])))
+  }
+
+  /** Esvazia uma linha inteira (sem deslocar as outras). `linha` é 1-based. */
+  async limparLinha(def: TableDef<never>, linha: number): Promise<void> {
+    await this.sheets.spreadsheets.values.clear({
+      spreadsheetId: this.spreadsheetId,
+      range: `${def.tab}!A${linha}:ZZ${linha}`,
+    })
+  }
+
+  async atualizarCelula<T extends object>(
+    def: TableDef<T>,
+    key: keyof T & string,
+    linha: number,
+    valor: Cell,
+  ): Promise<void> {
+    const letra = letraDaColuna(def.cols.findIndex((c) => c.key === key))
+    await this.sheets.spreadsheets.values.update({
+      spreadsheetId: this.spreadsheetId,
+      range: `${def.tab}!${letra}${linha}`,
+      valueInputOption: "RAW",
+      requestBody: { values: [[valor]] },
+    })
   }
 
   async escreverCabecalhos(defs: readonly TableDef<never>[]): Promise<void> {

@@ -28,6 +28,13 @@ Status: **decidido** (você disse), **proposta** (implementada como padrão, fá
 | D-32 | `AUTH_ALLOWED_EMAILS` do `.env` local ficou com `moutimg@gmail.com`. Em produção, definir a lista da Silper (D-27). | proposta |
 | D-33 | Margem do topo do celular: usei **56 px** (o `padding` da tela do protótipo, que reserva a barra de status). Num aparelho real isso sobra um pouco. Se preferir, troco por área segura do aparelho + 24 px. | aberto |
 | D-34 | Ajustei `drawer.tsx` (gaveta com raio de topo 26 px, doc 02 6.3) além dos 4 componentes da D-16. O aviso de hidratação do `cz-shortcut-listen` vem de extensão do navegador; `suppressHydrationWarning` no `<body>` evita o ruído. | proposta |
+| D-35 | **Fase 2 (Motores).** Rota `/motores/novo` interceptada (`(app)/@modal/(.)motores/novo`) com acesso direto em `/motores/novo`. Depois de salvar: aviso "Motor cadastrado: SIL-000126", janela fecha e `/motores` mostra uma **lista temporária** (substituída pela busca na Fase 6; as linhas ainda não abrem a ficha, que é da Fase 3). | proposta |
+| D-36 | **Unicidade do rastreio** implementada como "gravar e reler" (D-04) em `src/server/rastreio-service.ts`, sobre uma porta (`PortaMotores`) com implementação Sheets e outra em memória nos testes (20 rodadas de 5 cadastros simultâneos, digitado igual simultâneo e automático × digitado). **Falta validar com duas pessoas de verdade na planilha real.** Quem perde limpa a própria linha (não apaga a linha, para não deslocar as outras). | proposta |
+| D-37 | **Estado preservado pelo Next 16:** a rota interceptada mantém o formulário montado ao fechar. Depois de salvar, o formulário é zerado; ao cancelar, o rascunho fica (a previsão do rastreio pode estar defasada, mas o servidor decide o número). | proposta |
+| D-38 | **Tensão e RPM**: lista (valores propostos de `config.ts`) com "Não informar" e "Outro valor…", que abre campo livre, porque o protótipo usa "220/380 V", fora da lista sugerida. | proposta; aguardando os valores reais |
+| D-39 | **Fotos** e **motor-base** aparecem desabilitados com "Em breve" (Fases 5 e 6). Ao salvar, não abre a etiqueta (Fase 7). | proposta |
+| D-40 | A sessão expõe o `accessToken` do Google ao navegador (`/api/auth/session`), como no financeiro-os. Escopo só `drive.file` da própria conta. Se preferir, passo a lê-lo só no servidor (`getToken`). | aberto |
+| D-41 | Foram gravados **2 motores de teste** (`SIL-000001` e `SIL-000002`, clientes "TESTE... (apagar)") na planilha real durante a validação. O `npm run sheet:seed` apaga tudo. | informativo |
 
 ## Contradições e lacunas nos documentos
 
