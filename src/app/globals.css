@@ -205,3 +205,20 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ==========================================================================
+   3) Tela de login (docs/DECISOES.md, D-26): manchas de cor ao fundo, como no financeiro.
+   ========================================================================== */
+@keyframes login-float {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(20px, -20px); }
+  66% { transform: translate(-15px, 15px); }
+}
+
+.login-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.5;
+  animation: login-float 8s ease-in-out infinite;
+}

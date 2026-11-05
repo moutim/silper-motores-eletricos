@@ -57,7 +57,7 @@ export function LoginForm({ next, erro }: { next: string; erro: string | null })
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-4">
       {aviso && (
         <Alert className="border-0 bg-orange-light text-orange-text">
           <WarningCircleIcon size={18} aria-hidden="true" />
@@ -66,7 +66,12 @@ export function LoginForm({ next, erro }: { next: string; erro: string | null })
         </Alert>
       )}
 
-      <Button onClick={entrar} disabled={entrando} aria-busy={entrando} className="w-full">
+      <Button
+        onClick={entrar}
+        disabled={entrando}
+        aria-busy={entrando}
+        className="h-[50px] w-full rounded-2xl text-base shadow-[0_4px_12px_rgba(0,0,0,.15)] transition-transform hover:scale-[.98] active:scale-[.96]"
+      >
         {entrando ? (
           <>
             <SpinnerIcon className="animate-spin" aria-hidden="true" />
@@ -80,7 +85,10 @@ export function LoginForm({ next, erro }: { next: string; erro: string | null })
         )}
       </Button>
 
-      <p className="text-center text-xs text-text-tertiary">Use a conta Google da Silper.</p>
+      <p className="px-2 text-center text-xs leading-[1.4] text-text-tertiary">
+        Use a conta Google da Silper. Os dados ficam numa planilha do Google Drive dessa conta, e o acesso é
+        só para quem a oficina autorizar.
+      </p>
     </div>
   )
 }
