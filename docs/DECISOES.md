@@ -24,6 +24,10 @@ Status: **decidido** (você disse), **proposta** (implementada como padrão, fá
 | D-28 | **Cookies do Auth.js com nome próprio** (`silper.*`). No `localhost` os cookies valem para todas as portas; o cookie do `financeiro-os` (outro segredo) derrubava a sessão com `no matching decryption secret`. | decidido (correção técnica) |
 | D-29 | O redirect autorizado no cliente OAuth é `http://localhost:3000/...`. O Silper precisa rodar na **porta 3000**, então o `financeiro-os` tem de estar parado. Ao criar o cliente OAuth novo (D-11), autorize também a porta que for usar. | aberto |
 | D-30 | Next 16 renomeou `middleware` para `proxy` (`src/proxy.ts`). Com Cache Components ligado, ler `searchParams` ou `auth()` fora de `Suspense` bloqueia o pré-render (tela de login e página inicial já tratadas). | decidido |
+| D-31 | **Fase 1 (layout autenticado).** Menu lateral com o `Sidebar` do shadcn em modo `collapsible="none"`, escondido no celular (lá entra o `BottomNav`). **Sair no celular**: o ícone da Silper do cabeçalho vira botão e abre a gaveta "Conta" (foto, nome, e-mail, Sair), conforme a proposta da D-19; é o único elemento clicável no topo. Sem botão de alternar tema (o app segue o tema do aparelho; o login é sempre claro). | proposta |
+| D-32 | `AUTH_ALLOWED_EMAILS` do `.env` local ficou com `moutimg@gmail.com`. Em produção, definir a lista da Silper (D-27). | proposta |
+| D-33 | Margem do topo do celular: usei **56 px** (o `padding` da tela do protótipo, que reserva a barra de status). Num aparelho real isso sobra um pouco. Se preferir, troco por área segura do aparelho + 24 px. | aberto |
+| D-34 | Ajustei `drawer.tsx` (gaveta com raio de topo 26 px, doc 02 6.3) além dos 4 componentes da D-16. O aviso de hidratação do `cz-shortcut-listen` vem de extensão do navegador; `suppressHydrationWarning` no `<body>` evita o ruído. | proposta |
 
 ## Contradições e lacunas nos documentos
 
