@@ -5,6 +5,8 @@ import { descricaoMotor } from "@/lib/ficha"
 import { nomeCurto } from "@/lib/motor-format"
 import { formularioDaOS } from "@/lib/os-mapper"
 import { carregarFicha } from "@/server/motores"
+import { paraVisao } from "@/components/fotos/painel-fotos"
+import { listarFotosDoMotor } from "@/server/fotos"
 import { carregarOS } from "@/server/ordens"
 import { DetalheOS } from "./detalhe-os"
 import { OSForm } from "./os-form"
@@ -53,6 +55,7 @@ export async function OSAbertaConteudo({ params }: { params: ParamsId }) {
   const dados = await carregarOS(id)
   if (!dados) notFound()
   const { os, motor, bobinagensAtuais } = dados
+  const fotos = (await listarFotosDoMotor(motor.id)).filter((f) => f.osId === os.id)
   return (
     <div className="flex flex-col gap-3 md:gap-0">
       <Link
@@ -62,7 +65,13 @@ export async function OSAbertaConteudo({ params }: { params: ParamsId }) {
         <CaretLeftIcon size={12} weight="bold" aria-hidden="true" />
         {nomeCurto(motor)} · {motor.rastreio}
       </Link>
-      <DetalheOS os={os} motor={motor} bobinagensAtuais={bobinagensAtuais} paginaPropria />
+      <DetalheOS
+        os={os}
+        motor={motor}
+        bobinagensAtuais={bobinagensAtuais}
+        fotos={paraVisao(fotos, () => `Foto de serviço da O.S. ${os.numero}, motor ${motor.rastreio}`)}
+        paginaPropria
+      />
     </div>
   )
 }

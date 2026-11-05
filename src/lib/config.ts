@@ -33,6 +33,10 @@ export const config = {
     ladoMaxPx: 2048,
     maxPorMotor: null as number | null,
     maxPorOS: null as number | null,
+    /** Qualidade do JPEG gerado na redução feita no navegador. */
+    qualidadeJpeg: 0.85,
+    /** Pasta do Drive da conta onde ficam as fotos. */
+    pastaDrive: "Silper Motores - Fotos",
   },
 
   etiqueta: {

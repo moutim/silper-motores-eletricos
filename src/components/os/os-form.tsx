@@ -10,7 +10,9 @@ import { GavetaOuJanela } from "@/components/layout/gaveta-ou-janela"
 import { CampoTexto, TituloSecao } from "@/components/motores/campos"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { SeletorFotos } from "@/components/fotos/seletor-fotos"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { enviarVariasFotos } from "@/lib/envio-fotos"
 import { type OSFormValues, osFormSchema, osValoresIniciais } from "@/lib/os-schema"
 import { criarOSAcao, editarOSAcao } from "@/server/actions/ordens"
 import { CampoData, CampoMoeda, CampoTextoLongo } from "./campos-os"
@@ -42,6 +44,9 @@ export function OSForm(props: Props) {
     mode: "onTouched",
   })
   const [salvando, setSalvando] = useState(false)
+  /** Fotos escolhidas: enviadas depois de salvar, quando a O.S. já existe. */
+  const [fotos, setFotos] = useState<File[]>([])
+  const [enviandoFotos, setEnviandoFotos] = useState(false)
   const { motor } = props
   const enc = encodeURIComponent(motor.rastreio)
 
@@ -66,6 +71,15 @@ export function OSForm(props: Props) {
       const r = await criarOSAcao(motor.rastreio, valores)
       if (r.ok) {
         toast.success(`O.S. ${r.numero} registrada`)
+        if (fotos.length > 0) {
+          setEnviandoFotos(true)
+          const env = await enviarVariasFotos(fotos, { rastreio: motor.rastreio, tipo: "SERVICO", osId: r.id })
+          setEnviandoFotos(false)
+          if (env.falhas.length > 0) {
+            toast.warning(`A O.S. foi salva, mas ${env.falhas.length} foto(s) não foram enviadas. Adicione pela O.S.`)
+          }
+        }
+        setFotos([])
         form.reset(osValoresIniciais()) // o Next preserva o estado da rota interceptada ao fechar
         router.replace(`/motores/${enc}?aba=os&os=${r.id}`)
         router.refresh()
@@ -88,7 +102,7 @@ export function OSForm(props: Props) {
   const rodape = (
     <Button type="submit" form={ID_FORM} disabled={salvando} aria-busy={salvando} className={celular ? "flex-1" : undefined}>
       {salvando && <SpinnerIcon className="animate-spin" aria-hidden="true" />}
-      {salvando ? "Salvando..." : rotulo}
+      {enviandoFotos ? "Enviando fotos..." : salvando ? "Salvando..." : rotulo}
     </Button>
   )
 
@@ -142,16 +156,12 @@ export function OSForm(props: Props) {
           />
           <CampoTextoLongo name="observacoes" label="Observações" rows={3} className="order-6 md:col-span-6" />
 
-          <section className="order-7 flex flex-col gap-2 md:col-span-6" aria-label="Fotos da O.S.">
-            <TituloSecao>Fotos da O.S. (opcional)</TituloSecao>
-            <div
-              aria-disabled="true"
-              className="flex h-16 items-center justify-between rounded-field border border-dashed border-separator-opaque px-3 text-[13px] text-text-tertiary opacity-70"
-            >
-              Adicionar foto
-              <span className="text-xs">Em breve</span>
-            </div>
-          </section>
+          {!editar && (
+            <section className="order-7 flex flex-col gap-2 md:col-span-6" aria-label="Fotos da O.S.">
+              <TituloSecao>Fotos da O.S. (opcional)</TituloSecao>
+              <SeletorFotos rotulo="Adicionar fotos da O.S." arquivos={fotos} aoMudar={setFotos} desabilitado={salvando} />
+            </section>
+          )}
         </form>
       </FormProvider>
     </GavetaOuJanela>

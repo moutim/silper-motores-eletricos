@@ -1,4 +1,3 @@
-import { ImageIcon } from "@phosphor-icons/react/ssr"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { linhasBobinagem, linhasDadosGerais, ordenarBobinagens, tituloBobinagem } from "@/lib/ficha"
@@ -70,16 +69,5 @@ export function PainelDados({ motor, bobinagens }: { motor: Motor; bobinagens: B
         <div className="rounded-card bg-surface px-4 py-6 text-center text-sm text-text-tertiary">Nenhuma O.S. ainda</div>
       </div>
     </div>
-  )
-}
-
-export function PainelFotos() {
-  return (
-    <Vazio
-      icone={<ImageIcon size={20} />}
-      titulo="Nenhuma foto ainda"
-      apoio="Fotos do equipamento, esquemas de ligação e fotos de serviço."
-      acao="Adicionar foto"
-    />
   )
 }

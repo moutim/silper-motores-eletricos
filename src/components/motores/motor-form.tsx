@@ -16,6 +16,8 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { config } from "@/lib/config"
 import { type MotorFormValues, motorFormSchema, valoresIniciais } from "@/lib/motor-schema"
 import { normalizarRastreio, validarRastreioDigitado } from "@/lib/rastreio"
+import { SeletorFotos } from "@/components/fotos/seletor-fotos"
+import { enviarVariasFotos } from "@/lib/envio-fotos"
 import { cadastrarMotor, editarMotorAcao, verificarRastreio } from "@/server/actions/motores"
 import { CampoLista, CampoPotencia, CampoTexto, TituloSecao } from "./campos"
 import { GrupoBobinagem } from "./grupo-bobinagem"
@@ -56,6 +58,10 @@ export function MotorForm(props: Props) {
   const [passo, setPasso] = useState<1 | 2>(1)
   const [salvando, setSalvando] = useState(false)
   const [verificando, setVerificando] = useState(false)
+  /** Fotos escolhidas no cadastro: são enviadas depois de salvar, quando o motor já existe. */
+  const [fotosEquipamento, setFotosEquipamento] = useState<File[]>([])
+  const [fotosEsquema, setFotosEsquema] = useState<File[]>([])
+  const [enviandoFotos, setEnviandoFotos] = useState(false)
   /** Chave do último rastreio digitado que o servidor disse estar em uso. Bloqueia o Salvar. */
   const [emUso, setEmUso] = useState<string | null>(null)
 
@@ -121,7 +127,19 @@ export function MotorForm(props: Props) {
         const r = await cadastrarMotor(valores)
         if (r.ok) {
           toast.success(`Motor cadastrado: ${r.rastreio}`)
+          if (fotosEquipamento.length + fotosEsquema.length > 0) {
+            setEnviandoFotos(true)
+            const a = await enviarVariasFotos(fotosEquipamento, { rastreio: r.rastreio, tipo: "EQUIPAMENTO" })
+            const b = await enviarVariasFotos(fotosEsquema, { rastreio: r.rastreio, tipo: "ESQUEMA" })
+            setEnviandoFotos(false)
+            const falhas = [...a.falhas, ...b.falhas]
+            if (falhas.length > 0) {
+              toast.warning(`O motor foi salvo, mas ${falhas.length} foto(s) não foram enviadas. Adicione pela ficha.`)
+            }
+          }
           // O Next preserva o estado da rota interceptada ao fechar: limpa para o próximo cadastro.
+          setFotosEquipamento([])
+          setFotosEsquema([])
           form.reset(valoresIniciais())
           setPasso(1)
           setEmUso(null)
@@ -146,7 +164,15 @@ export function MotorForm(props: Props) {
   )
 
   const ocupado = salvando || verificando
-  const rotuloSalvar = editar ? (salvando ? "Salvando..." : "Salvar alterações") : salvando ? "Salvando..." : "Salvar motor"
+  const rotuloSalvar = editar
+    ? salvando
+      ? "Salvando..."
+      : "Salvar alterações"
+    : enviandoFotos
+      ? "Enviando fotos..."
+      : salvando
+        ? "Salvando..."
+        : "Salvar motor"
   const botaoSalvar = (
     <Button
       type="submit"
@@ -369,18 +395,20 @@ export function MotorForm(props: Props) {
             </section>
 
             {!editar && (
-              <section className="flex flex-col gap-2" aria-label="Fotos">
+              <section className="flex flex-col gap-3" aria-label="Fotos">
                 <TituloSecao>Fotos (opcional)</TituloSecao>
-                {["Foto do equipamento", "Foto do esquema de ligação"].map((nome) => (
-                  <div
-                    key={nome}
-                    aria-disabled="true"
-                    className="flex h-16 items-center justify-between rounded-field border border-dashed border-separator-opaque px-3 text-[13px] text-text-tertiary opacity-70"
-                  >
-                    {nome}
-                    <span className="text-xs">Em breve</span>
-                  </div>
-                ))}
+                <SeletorFotos
+                  rotulo="Foto do equipamento"
+                  arquivos={fotosEquipamento}
+                  aoMudar={setFotosEquipamento}
+                  desabilitado={salvando}
+                />
+                <SeletorFotos
+                  rotulo="Foto do esquema de ligação"
+                  arquivos={fotosEsquema}
+                  aoMudar={setFotosEsquema}
+                  desabilitado={salvando}
+                />
               </section>
             )}
           </div>

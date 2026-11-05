@@ -1,6 +1,7 @@
 import { ClipboardTextIcon } from "@phosphor-icons/react/ssr"
 import { Vazio } from "@/components/motores/ficha/paineis"
-import type { Bobinagem, Motor, OrdemServico } from "@/lib/types"
+import { paraVisao } from "@/components/fotos/painel-fotos"
+import type { Bobinagem, Foto, Motor, OrdemServico } from "@/lib/types"
 import { DetalheOS } from "./detalhe-os"
 import { HistoricoOS } from "./historico-os"
 
@@ -9,11 +10,13 @@ export function PainelOS({
   motor,
   bobinagens,
   ordens,
+  fotos,
   selecionadaId,
 }: {
   motor: Motor
   bobinagens: Bobinagem[]
   ordens: OrdemServico[]
+  fotos: Foto[]
   selecionadaId?: string
 }) {
   if (ordens.length === 0) {
@@ -35,7 +38,15 @@ export function PainelOS({
         <HistoricoOS ordens={ordens} rastreio={motor.rastreio} selecionadaId={selecionada.id} modo="celular" />
       </div>
       <div className="hidden md:grid md:grid-cols-[minmax(0,1fr)_340px] md:items-start md:gap-5">
-        <DetalheOS os={selecionada} motor={motor} bobinagensAtuais={bobinagens} />
+        <DetalheOS
+          os={selecionada}
+          motor={motor}
+          bobinagensAtuais={bobinagens}
+          fotos={paraVisao(
+            fotos.filter((f) => f.osId === selecionada.id),
+            () => `Foto de serviço da O.S. ${selecionada.numero}, motor ${motor.rastreio}`,
+          )}
+        />
         <HistoricoOS ordens={ordens} rastreio={motor.rastreio} selecionadaId={selecionada.id} modo="desktop" />
       </div>
     </>

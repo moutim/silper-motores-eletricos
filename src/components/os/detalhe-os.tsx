@@ -7,6 +7,8 @@ import { nomeCurto } from "@/lib/motor-format"
 import { compararRetrato } from "@/lib/retrato-diff"
 import type { Bobinagem, Motor, OrdemServico } from "@/lib/types"
 import { TituloSecao } from "@/components/motores/campos"
+import { AdicionarFotos } from "@/components/fotos/adicionar-fotos"
+import { type FotoView, GradeFotos } from "@/components/fotos/grade-fotos"
 import { DadosTecnicosOS } from "./dados-tecnicos-os"
 
 /**
@@ -17,11 +19,14 @@ export function DetalheOS({
   os,
   motor,
   bobinagensAtuais,
+  fotos,
   paginaPropria,
 }: {
   os: OrdemServico
   motor: Motor
   bobinagensAtuais: Bobinagem[]
+  /** Fotos desta O.S. (tipo serviço). */
+  fotos: FotoView[]
   /** Na página `/os/[id]` o título da O.S. é o h1 do desktop; dentro da ficha é um h2. */
   paginaPropria?: boolean
 }) {
@@ -96,12 +101,13 @@ export function DetalheOS({
 
       <section className="mt-5 flex flex-col gap-2" aria-label="Fotos desta O.S.">
         <TituloSecao>Fotos desta O.S.</TituloSecao>
-        <div
-          aria-disabled="true"
-          className="flex h-16 items-center justify-between rounded-field border border-dashed border-separator-opaque px-3 text-[13px] text-text-tertiary opacity-70"
-        >
-          Nenhuma foto ainda
-          <span className="text-xs">Em breve</span>
+        <div className="rounded-card bg-surface p-3.5">
+          <GradeFotos fotos={fotos} podeExcluir={!bloqueado}>
+            {!bloqueado && (
+              <AdicionarFotos ladrilho destino={{ rastreio: motor.rastreio, tipo: "SERVICO", osId: os.id }} />
+            )}
+          </GradeFotos>
+          {fotos.length === 0 && bloqueado && <p className="text-sm text-text-tertiary">Nenhuma foto.</p>}
         </div>
       </section>
     </div>
