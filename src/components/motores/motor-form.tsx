@@ -160,7 +160,8 @@ export function MotorForm(props: Props) {
           setBase(null)
           setPasso(1)
           setEmUso(null)
-          aoFechar()
+          // Conclui o cadastro abrindo a etiqueta (1.9). `replace`: fechar a etiqueta volta para onde o cadastro começou.
+          router.replace(`/motores/${encodeURIComponent(r.rastreio)}/etiqueta?novo=1`)
           router.refresh()
         } else if (r.campo === "rastreio") {
           setError("rastreio", { type: "server", message: r.erro })

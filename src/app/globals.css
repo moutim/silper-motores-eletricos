@@ -222,3 +222,33 @@
   opacity: 0.5;
   animation: login-float 8s ease-in-out infinite;
 }
+
+/* ==========================================================================
+   4) Impressão da etiqueta (Fase 7): só a cópia `.etiqueta-impressao` sai no papel.
+   Tamanho da etiqueta ainda indefinido (doc 04, pergunta 9): folha comum com a etiqueta centralizada.
+   ========================================================================== */
+.etiqueta-impressao {
+  display: none;
+}
+
+@media print {
+  body > *:not(.etiqueta-impressao) {
+    display: none !important;
+  }
+  .etiqueta-impressao {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    gap: 6mm;
+    padding-top: 20mm;
+    color: #000;
+    background: #fff;
+  }
+  html,
+  body {
+    background: #fff !important;
+  }
+  @page {
+    margin: 10mm;
+  }
+}

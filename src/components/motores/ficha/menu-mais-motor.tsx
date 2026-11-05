@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { alterarAtivoMotor } from "@/server/actions/motores"
 
-/** Menu "mais" da ficha: Gerar etiqueta (Fase 7) e Desativar/Reativar motor (RN-17), com confirmação. */
+/** Menu "mais" da ficha: Gerar etiqueta e Desativar/Reativar motor (RN-17), com confirmação. */
 export function MenuMaisMotor({ rastreio, ativo }: { rastreio: string; ativo: boolean }) {
   const router = useRouter()
   const [confirmar, setConfirmar] = useState(false)
@@ -42,10 +42,9 @@ export function MenuMaisMotor({ rastreio, ativo }: { rastreio: string; ativo: bo
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-52">
-          <DropdownMenuItem disabled>
+          <DropdownMenuItem onSelect={() => router.push(`/motores/${encodeURIComponent(rastreio)}/etiqueta`)}>
             <TagIcon aria-hidden="true" />
             Gerar etiqueta
-            <span className="ml-auto text-xs text-text-tertiary">Em breve</span>
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => setConfirmar(true)} className={ativo ? "text-destructive" : undefined}>
             {ativo ? <ToggleLeftIcon aria-hidden="true" /> : <ToggleRightIcon aria-hidden="true" />}
