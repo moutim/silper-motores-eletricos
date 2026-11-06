@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { InfoIcon, SpinnerIcon } from "@phosphor-icons/react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { Suspense, use, useState } from "react"
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { GavetaOuJanela } from "@/components/layout/gaveta-ou-janela"
@@ -26,6 +26,11 @@ import { Segmentado } from "./segmentado"
 
 const ID_FORM = "motor-form"
 
+/** O número previsto chega depois: o formulário abre na hora e o servidor decide o número ao salvar. */
+function NumeroPrevisto({ previsto }: { previsto: Promise<string | null> }) {
+  return <>{use(previsto) ?? "Definido ao salvar"}</>
+}
+
 /** Campos do passo 1 no celular (rastreio e dados gerais). */
 const CAMPOS_PASSO_1 = [
   "rastreio", "clienteNome", "marca", "modelo", "tipoEquipamento", "potenciaValor",
@@ -33,7 +38,7 @@ const CAMPOS_PASSO_1 = [
 ] as const
 
 type Props = { pagina?: boolean } & (
-  | { modo: "novo"; previsto: string; abrirBase?: boolean }
+  | { modo: "novo"; previsto: Promise<string | null>; abrirBase?: boolean }
   | { modo: "editar"; rastreio: string; versao: string; valores: MotorFormValues }
 )
 
@@ -300,7 +305,11 @@ export function MotorForm(props: Props) {
                     <div className="rounded-[16px] bg-bg p-4">
                       <p className="text-xs font-semibold text-text-tertiary">Número previsto</p>
                       <p className="mt-1 text-xl font-bold tabular-nums" aria-live="polite">
-                        {props.modo === "novo" ? props.previsto : ""}
+                        {props.modo === "novo" && (
+                          <Suspense fallback={<span className="text-text-tertiary">Calculando...</span>}>
+                            <NumeroPrevisto previsto={props.previsto} />
+                          </Suspense>
+                        )}
                       </p>
                       <p className="mt-1 text-xs text-text-tertiary">
                         Único e nunca reutilizado. Duplicados são bloqueados.
