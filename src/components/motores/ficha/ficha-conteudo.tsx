@@ -1,5 +1,4 @@
-import { CaretLeftIcon, WarningCircleIcon } from "@phosphor-icons/react/ssr"
-import Link from "next/link"
+import { WarningCircleIcon } from "@phosphor-icons/react/ssr"
 import { notFound } from "next/navigation"
 import { after } from "next/server"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -35,14 +34,6 @@ export async function FichaConteudo({
 
   return (
     <div className="flex flex-col gap-3 md:gap-0">
-      <Link
-        href="/motores"
-        className="mb-2.5 hidden w-fit items-center gap-0.5 text-xs font-semibold text-orange-text md:flex"
-      >
-        <CaretLeftIcon size={12} weight="bold" aria-hidden="true" />
-        Motores
-      </Link>
-
       {!motor.ativo && (
         <Alert className="mb-3 border-0 bg-orange-light text-orange-text">
           <WarningCircleIcon size={18} aria-hidden="true" />

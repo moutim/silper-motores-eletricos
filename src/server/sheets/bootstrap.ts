@@ -1,3 +1,4 @@
+import { garantirPastaCentral, garantirPastaImagens, moverParaPasta } from "../drive-pastas"
 import type { Sheets } from "./client"
 import { Planilha } from "./client"
 import { TABELAS } from "./schema"
@@ -7,7 +8,8 @@ export const NOME_PLANILHA = process.env.SHEET_NAME ?? "SilperMotores"
 type Drive = ReturnType<typeof import("./client").clientesGoogle>["drive"]
 
 /**
- * Acha (ou cria) a planilha da Silper no Drive da conta e garante abas e cabeçalhos.
+ * No login: garante a pasta central "Silper Motores" com a planilha e a subpasta "Imagens" dentro dela
+ * (planilha e pasta de fotos de antes, soltas na raiz, são movidas para lá), e garante abas e cabeçalhos.
  * Só enxerga arquivos criados por este app (escopo drive.file), igual ao financeiro-os.
  */
 export async function acharOuCriarPlanilha(sheets: Sheets, drive: Drive): Promise<Planilha> {
@@ -17,15 +19,19 @@ export async function acharOuCriarPlanilha(sheets: Sheets, drive: Drive): Promis
     spaces: "drive",
   })
   let id = busca.data.files?.[0]?.id ?? null
+  const central = await garantirPastaCentral(drive)
   const novas = TABELAS.map((t) => t.tab)
 
   if (!id) {
     const criada = await drive.files.create({
-      requestBody: { name: NOME_PLANILHA, mimeType: "application/vnd.google-apps.spreadsheet" },
+      requestBody: { name: NOME_PLANILHA, mimeType: "application/vnd.google-apps.spreadsheet", parents: [central] },
       fields: "id",
     })
     id = criada.data.id!
+  } else {
+    await moverParaPasta(drive, id, central)
   }
+  await garantirPastaImagens(drive, central)
 
   const meta = await sheets.spreadsheets.get({ spreadsheetId: id })
   const existentes = new Map(

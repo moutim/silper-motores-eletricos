@@ -49,15 +49,15 @@ const form = (extra: Partial<MotorFormValues> = {}) => ({ ...valoresIniciais(), 
 
 describe("rastreio (RN-02, RN-04, RN-03)", () => {
   it("automático continua a sequência e pula números já ocupados", async () => {
-    const { porta } = portaEmMemoria(["SIL-000125", "SIL-000130"])
+    const { porta } = portaEmMemoria(["SILPER-000125", "SILPER-000130"])
     const r = await criarMotor(porta, { modo: "AUTOMATICO", montar: montarCom(form()) })
-    expect(r.ok && r.motor.rastreio).toBe("SIL-000131")
+    expect(r.ok && r.motor.rastreio).toBe("SILPER-000131")
     expect(r.ok && r.motor.rastreioOrigem).toBe("AUTOMATICO")
   })
 
   it("previsão mostra o próximo número", async () => {
-    const { porta } = portaEmMemoria(["SIL-000125"])
-    expect(await preverRastreio(porta)).toBe("SIL-000126")
+    const { porta } = portaEmMemoria(["SILPER-000125"])
+    expect(await preverRastreio(porta)).toBe("SILPER-000126")
   })
 
   it("digitado duplicado é recusado, sem diferenciar maiúsculas nem espaços", async () => {
@@ -76,7 +76,7 @@ describe("rastreio (RN-02, RN-04, RN-03)", () => {
 
   it("dois cadastros automáticos simultâneos nunca geram o mesmo rastreio", async () => {
     for (let rodada = 0; rodada < 20; rodada++) {
-      const { porta, linhas } = portaEmMemoria(["SIL-000125"])
+      const { porta, linhas } = portaEmMemoria(["SILPER-000125"])
       const rs = await Promise.all(
         Array.from({ length: 5 }, () => criarMotor(porta, { modo: "AUTOMATICO", montar: montarCom(form()) })),
       )
@@ -102,10 +102,10 @@ describe("rastreio (RN-02, RN-04, RN-03)", () => {
 
   it("automático e digitado do mesmo número ao mesmo tempo também não repetem", async () => {
     for (let rodada = 0; rodada < 20; rodada++) {
-      const { porta, linhas } = portaEmMemoria(["SIL-000125"])
+      const { porta, linhas } = portaEmMemoria(["SILPER-000125"])
       const rs = await Promise.all([
         criarMotor(porta, { modo: "AUTOMATICO", montar: montarCom(form()) }),
-        criarMotor(porta, { modo: "MANUAL", digitado: "SIL-000126", montar: montarCom(form()) }),
+        criarMotor(porta, { modo: "MANUAL", digitado: "SILPER-000126", montar: montarCom(form()) }),
       ])
       const ok = rs.filter((r) => r.ok)
       const gravados = linhas.filter(Boolean).map((m) => m!.rastreioChave)

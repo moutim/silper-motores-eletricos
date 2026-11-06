@@ -8,11 +8,15 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: { default: "Silper Motores Elétricos", template: "%s · Silper" },
   description: "Cadastro de motores e histórico de ordens de serviço da Silper.",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Silper" },
+  formatDetection: { telephone: false },
 }
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#F2F2F7",
 }
 
 export default function RootLayout({

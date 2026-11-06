@@ -6,8 +6,8 @@
 
 export const config = {
   rastreio: {
-    /** PENDENTE: formato. PDF usa "MOT-000125"; protótipo usa "SIL-000125". */
-    prefixo: process.env.RASTREIO_PREFIXO ?? "SIL-",
+    /** Decidido: prefixo "SILPER-" (era "SIL-" no protótipo; o PDF usa "MOT-"). A sequência é por prefixo: começa em 000001. */
+    prefixo: process.env.RASTREIO_PREFIXO ?? "SILPER-",
     digitos: Number(process.env.RASTREIO_DIGITOS ?? 6),
     /** PENDENTE (a confirmar): tamanho e caracteres do rastreio digitado (doc 01, 5.4). */
     tamanhoMin: 3,
@@ -35,8 +35,14 @@ export const config = {
     maxPorOS: null as number | null,
     /** Qualidade do JPEG gerado na redução feita no navegador. */
     qualidadeJpeg: 0.85,
-    /** Pasta do Drive da conta onde ficam as fotos. */
-    pastaDrive: "Silper Motores - Fotos",
+  },
+
+  /** Organização no Drive da conta: uma pasta central com a planilha e a subpasta de imagens. */
+  drive: {
+    pastaCentral: "Silper Motores",
+    pastaImagens: "Imagens",
+    /** Nome da pasta de fotos de antes da pasta central; se existir, é movida e renomeada. */
+    pastaFotosAntiga: "Silper Motores - Fotos",
   },
 
   etiqueta: {

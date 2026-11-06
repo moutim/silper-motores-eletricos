@@ -6,10 +6,10 @@ import type { Motor } from "@/lib/types"
 /** Linha de motor (doc 02, 6.4): ícone azul, nome curto, "{cliente} · {RPM}", rastreio e seta. Abre a ficha. */
 export function LinhaMotor({ motor, ultima }: { motor: Motor; ultima: boolean }) {
   return (
-    <li>
+    <li className={`mx-4 ${ultima ? "" : "border-b border-separator"}`}>
       <Link
         href={`/motores/${encodeURIComponent(motor.rastreio)}`}
-        className="flex items-center gap-3 px-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="-mx-4 flex items-center gap-3 px-4 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span
           className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#3A55B6] text-white"
@@ -17,7 +17,7 @@ export function LinhaMotor({ motor, ultima }: { motor: Motor; ultima: boolean })
         >
           <EngineIcon size={18} />
         </span>
-        <span className={`flex min-w-0 flex-1 items-center gap-3 py-2.5 ${ultima ? "" : "border-b border-separator"}`}>
+        <span className="flex min-w-0 flex-1 items-center gap-3">
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold">
               {nomeCurto(motor)}

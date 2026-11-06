@@ -16,15 +16,15 @@ const CORES = {
 export function CartoesInfo({ indicadores }: { indicadores: Indicadores }) {
   const mes = nomeDoMes(mesCorrente())
   const itens = [
-    { rotulo: "Motores cadastrados", valor: numero.format(indicadores.motoresAtivos), icone: <EngineIcon size={20} />, cor: CORES.azul },
     { rotulo: `Faturamento de ${mes}`, valor: formatarMoeda(indicadores.faturamento), icone: <CurrencyCircleDollarIcon size={20} />, cor: CORES.laranja },
+    { rotulo: "Motores cadastrados", valor: numero.format(indicadores.motoresAtivos), icone: <EngineIcon size={20} />, cor: CORES.azul },
     { rotulo: "O.S. neste mês", valor: numero.format(indicadores.osNoMes), icone: <ClipboardTextIcon size={20} />, cor: CORES.verde },
     { rotulo: "Clientes atendidos", valor: numero.format(indicadores.clientesAtendidos), icone: <UsersIcon size={20} />, cor: CORES.cinza },
   ]
   return (
     <section aria-label="Resumo" className="grid grid-cols-2 gap-[10px] md:grid-cols-4 md:gap-4">
       {itens.map((i) => (
-        <div key={i.rotulo} className="flex flex-col gap-3 rounded-card bg-surface p-4">
+        <div key={i.rotulo} className="flex flex-col gap-3 rounded-card bg-surface p-4 md:h-[136px]">
           <span className={`flex size-9 items-center justify-center rounded-[8px] md:size-10 ${i.cor}`} aria-hidden="true">
             {i.icone}
           </span>

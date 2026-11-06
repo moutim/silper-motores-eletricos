@@ -1,10 +1,23 @@
+import { ClipboardTextIcon, PlusIcon } from "@phosphor-icons/react/ssr"
 import Link from "next/link"
+import { CartaoSecao } from "@/components/layout/cartao-secao"
 import { Button } from "@/components/ui/button"
 import { config } from "@/lib/config"
 import { listarOS, mesDaUrl, mesesDasOS } from "@/lib/os-lista"
 import { carregarBase } from "@/server/busca"
+import { BotaoNovaOS } from "./botao-nova-os"
 import { BarraBuscaOS } from "./barra-busca-os"
 import { LinhaOSMotor } from "./linha-os-motor"
+
+/** "Nova O.S." abre o seletor de motor: a O.S. fica atrelada ao motor escolhido. */
+function NovaOS() {
+  return (
+    <BotaoNovaOS className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-white outline-none hover:brightness-110 focus-visible:ring-2 focus-visible:ring-ring md:h-9">
+      <PlusIcon size={16} weight="bold" aria-hidden="true" />
+      Nova O.S.
+    </BotaoNovaOS>
+  )
+}
 
 type Params = Record<string, string | string[] | undefined>
 const um = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? ""
@@ -37,30 +50,24 @@ export async function ListaOS({ params }: { params: Params }) {
       {todas.length === 0 ? (
         <div className="flex flex-col items-start gap-3 px-1">
           <p className="text-sm text-text-tertiary">
-            {filtrando ? "Nenhuma O.S. com esses filtros." : "Nenhuma O.S. ainda. Abra uma pela ficha de um motor."}
+            {filtrando ? "Nenhuma O.S. com esses filtros." : "Nenhuma O.S. ainda. Escolha um motor para abrir a primeira."}
           </p>
           {filtrando ? (
             <Button asChild variant="secondary">
               <Link href="/os">Limpar busca</Link>
             </Button>
           ) : (
-            <Button asChild>
-              <Link href="/motores">Ir para Motores</Link>
-            </Button>
+            <NovaOS />
           )}
         </div>
       ) : (
-        <section className="flex flex-col gap-2" aria-label="Ordens de serviço">
-          <div className="flex items-baseline justify-between px-4 md:px-1">
-            <h2 className="text-xs font-medium uppercase tracking-[0.02em] text-text-tertiary">
-              Ordens de serviço ({todas.length})
-            </h2>
-            <span className="text-xs text-text-tertiary">
-              <span className="md:hidden">Toque para abrir</span>
-              <span className="max-md:hidden">Clique para abrir</span>
-            </span>
-          </div>
-          <ul className="overflow-hidden rounded-card bg-surface">
+        <CartaoSecao
+          rotulo="Ordens de serviço"
+          icone={<ClipboardTextIcon size={18} />}
+          titulo={`Ordens de serviço (${todas.length})`}
+          acao={<NovaOS />}
+        >
+          <ul>
             {visiveis.map(({ os, motor }, i) => (
               <LinhaOSMotor
                 key={os.id}
@@ -73,13 +80,13 @@ export async function ListaOS({ params }: { params: Params }) {
             ))}
           </ul>
           {todas.length > limite && (
-            <Button asChild variant="secondary" className="self-center">
+            <Button asChild variant="secondary" className="mx-auto my-3 flex w-fit">
               <Link href={`/os?${sp.toString()}`} scroll={false}>
                 Ver mais ({todas.length - limite})
               </Link>
             </Button>
           )}
-        </section>
+        </CartaoSecao>
       )}
     </>
   )

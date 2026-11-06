@@ -4,7 +4,7 @@ import { authConfig } from "@/server/auth.config"
 
 const { auth } = NextAuth(authConfig)
 
-/** Toda rota exige sessão (doc 01, seção 7). Sem sessão, vai ao /login e volta depois (?next=). */
+/** Toda rota exige sessão (doc 01, seção 7), menos o manifesto e os ícones do app (o navegador os lê sem login). Sem sessão, vai ao /login e volta depois (?next=). */
 export default auth((req) => {
   const { pathname, search } = req.nextUrl
   const logado = !!req.auth && !req.auth.error
@@ -21,5 +21,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|assets/|favicon.ico|.*\\.(?:svg|png|ico|webp)$).*)"],
+  matcher: ["/((?!api/auth|_next/static|_next/image|assets/|favicon.ico|manifest.webmanifest|pwa-icon/|apple-icon|icon$|.*\\.(?:svg|png|ico|webp)$).*)"],
 }

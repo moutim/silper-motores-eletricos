@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { BottomNav } from "@/components/layout/bottom-nav"
 import { ContaSidebar } from "@/components/layout/conta-sidebar"
+import { InstalarApp } from "@/components/pwa/instalar-app"
 import { SidebarApp } from "@/components/layout/sidebar-app"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -33,6 +34,7 @@ export default function AppLayout({
       </div>
       <BottomNav />
       {modal}
+      <InstalarApp tela="inicio" />
     </SidebarProvider>
   )
 }

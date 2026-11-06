@@ -191,7 +191,7 @@ function EscolherNoCelular({
             </h3>
             <span className="text-xs text-text-tertiary">Toque para escolher</span>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto">
             {resultado?.erro ? (
               <p className="px-1 text-sm text-destructive" role="alert">
                 Não foi possível buscar. Tente de novo.

@@ -1,6 +1,7 @@
 import { ClipboardTextIcon, DevicesIcon, GearSixIcon } from "@phosphor-icons/react/ssr"
 import type { Metadata } from "next"
 import { Suspense } from "react"
+import { InstalarApp } from "@/components/pwa/instalar-app"
 import { Skeleton } from "@/components/ui/skeleton"
 import { destinoSeguro } from "@/lib/acesso"
 import { LoginForm } from "./login-form"
@@ -80,6 +81,7 @@ export default function LoginPage({ searchParams }: { searchParams: Params }) {
           </Suspense>
         </div>
       </div>
+      <InstalarApp tela="login" />
     </main>
   )
 }

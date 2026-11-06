@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { InfoIcon, SpinnerIcon } from "@phosphor-icons/react"
 import { useRouter } from "next/navigation"
-import { Suspense, use, useState } from "react"
+import { useEffect, useState } from "react"
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form"
 import { toast } from "sonner"
 import { GavetaOuJanela } from "@/components/layout/gaveta-ou-janela"
@@ -14,11 +14,11 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { config } from "@/lib/config"
-import { type MotorFormValues, motorFormSchema, valoresIniciais } from "@/lib/motor-schema"
+import { type MotorFormValues, motorFormSchema, valoresIniciaisNovo } from "@/lib/motor-schema"
 import { normalizarRastreio, validarRastreioDigitado } from "@/lib/rastreio"
 import { SeletorFotos } from "@/components/fotos/seletor-fotos"
 import { enviarVariasFotos } from "@/lib/envio-fotos"
-import { cadastrarMotor, editarMotorAcao, verificarRastreio } from "@/server/actions/motores"
+import { cadastrarMotor, editarMotorAcao, previsaoRastreioAcao, verificarRastreio } from "@/server/actions/motores"
 import { CampoLista, CampoPotencia, CampoTexto, TituloSecao } from "./campos"
 import { type BaseEscolhida, EscolherBase } from "./escolher-base"
 import { GrupoBobinagem } from "./grupo-bobinagem"
@@ -27,25 +27,28 @@ import { Segmentado } from "./segmentado"
 const ID_FORM = "motor-form"
 
 /** O número previsto chega depois: o formulário abre na hora e o servidor decide o número ao salvar. */
-function NumeroPrevisto({ previsto }: { previsto: Promise<string | null> }) {
-  return <>{use(previsto) ?? "Definido ao salvar"}</>
+function NumeroPrevisto() {
+  const [valor, setValor] = useState<string | null | undefined>(undefined)
+  useEffect(() => {
+    let ativo = true
+    previsaoRastreioAcao().then((v) => ativo && setValor(v))
+    return () => {
+      ativo = false
+    }
+  }, [])
+  if (valor === undefined) return <span className="text-text-tertiary">Calculando...</span>
+  return <>{valor ?? "Definido ao salvar"}</>
 }
 
-/** Campos do passo 1 no celular (rastreio e dados gerais). */
-const CAMPOS_PASSO_1 = [
-  "rastreio", "clienteNome", "marca", "modelo", "tipoEquipamento", "potenciaValor",
-  "tensao", "corrente", "rpm", "fatorServico", "item", "pacote", "diametro",
-] as const
-
 type Props = { pagina?: boolean } & (
-  | { modo: "novo"; previsto: Promise<string | null>; abrirBase?: boolean }
+  | { modo: "novo"; abrirBase?: boolean }
   | { modo: "editar"; rastreio: string; versao: string; valores: MotorFormValues }
 )
 
 /**
  * Formulário do motor, no celular (gaveta) e no desktop (janela). Serve ao cadastro (1.2 a 1.8) e
- * à edição (3.8). Na edição o rastreio é fixo, e no celular as abas "Dados gerais" e "Bobinagem"
- * trocam de seção; no cadastro o celular tem dois passos com Continuar e Voltar.
+ * à edição (3.8). Os dois aparelhos mostram os mesmos campos: no celular, Dados gerais, Bobinagem e
+ * Fotos vêm empilhados numa só rolagem, com um único botão de salvar. Na edição o rastreio é fixo.
  */
 export function MotorForm(props: Props) {
   const editar = props.modo === "editar"
@@ -53,7 +56,7 @@ export function MotorForm(props: Props) {
   const celular = useIsMobile()
   const form = useForm<MotorFormValues>({
     resolver: zodResolver(motorFormSchema),
-    defaultValues: props.modo === "editar" ? props.valores : valoresIniciais(),
+    defaultValues: props.modo === "editar" ? props.valores : valoresIniciaisNovo(),
     mode: "onTouched",
   })
   const { control, register, formState, setError, clearErrors, getValues } = form
@@ -61,7 +64,6 @@ export function MotorForm(props: Props) {
   const tipo = useWatch({ control, name: "tipoMotor" })
   const rastreioDigitado = useWatch({ control, name: "rastreio" })
 
-  const [passo, setPasso] = useState<1 | 2>(1)
   const [salvando, setSalvando] = useState(false)
   const [verificando, setVerificando] = useState(false)
   /** Fotos escolhidas no cadastro: são enviadas depois de salvar, quando o motor já existe. */
@@ -116,17 +118,9 @@ export function MotorForm(props: Props) {
     toast.success(`Dados copiados de ${escolhida.rastreio}. Preencha o cliente.`)
   }
 
-  async function continuar() {
-    const ok = await form.trigger([...CAMPOS_PASSO_1])
-    if (!ok) return
-    if (getValues("rastreioModo") === "MANUAL" && !(await conferirRastreio())) return
-    setPasso(2)
-  }
-
   const salvar = form.handleSubmit(
     async (valores) => {
       if (props.modo === "novo" && valores.rastreioModo === "MANUAL" && !(await conferirRastreio())) {
-        setPasso(1)
         return
       }
       setSalvando(true)
@@ -161,9 +155,8 @@ export function MotorForm(props: Props) {
           // O Next preserva o estado da rota interceptada ao fechar: limpa para o próximo cadastro.
           setFotosEquipamento([])
           setFotosEsquema([])
-          form.reset(valoresIniciais())
+          form.reset(valoresIniciaisNovo())
           setBase(null)
-          setPasso(1)
           setEmUso(null)
           // Conclui o cadastro abrindo a etiqueta (1.9). `replace`: fechar a etiqueta volta para onde o cadastro começou.
           router.replace(`/motores/${encodeURIComponent(r.rastreio)}/etiqueta?novo=1`)
@@ -171,7 +164,6 @@ export function MotorForm(props: Props) {
         } else if (r.campo === "rastreio") {
           setError("rastreio", { type: "server", message: r.erro })
           setEmUso(normalizarRastreio(valores.rastreio))
-          setPasso(1)
         } else {
           toast.error(r.erro, tentarDeNovo)
         }
@@ -180,9 +172,6 @@ export function MotorForm(props: Props) {
       } finally {
         setSalvando(false)
       }
-    },
-    (erros) => {
-      if (CAMPOS_PASSO_1.some((c) => erros[c])) setPasso(1)
     },
   )
 
@@ -209,25 +198,10 @@ export function MotorForm(props: Props) {
     </Button>
   )
 
-  const rodape =
-    !celular || editar ? (
-      botaoSalvar
-    ) : passo === 1 ? (
-      <Button type="button" onClick={continuar} disabled={ocupado || bloqueado} className="flex-1">
-        {verificando && <SpinnerIcon className="animate-spin" aria-hidden="true" />}
-        Continuar
-      </Button>
-    ) : (
-      <>
-        <Button type="button" variant="secondary" onClick={() => setPasso(1)} disabled={salvando} className="flex-1">
-          Voltar
-        </Button>
-        {botaoSalvar}
-      </>
-    )
+  const rodape = botaoSalvar
 
   const erroRastreio = formState.errors.rastreio?.message
-  const titulo = editar ? "Editar dados" : celular && passo === 2 ? "Bobinagem" : "Novo motor"
+  const titulo = editar ? "Editar dados" : "Novo motor"
 
   return (
     <GavetaOuJanela
@@ -241,36 +215,14 @@ export function MotorForm(props: Props) {
       rodape={rodape}
     >
       <FormProvider {...form}>
-        {/* Edição no celular: abas Dados gerais / Bobinagem */}
-        {editar && (
-          <div className="mb-4 md:hidden">
-            <Segmentado
-              rotulo="Seção"
-              value={String(passo) as "1" | "2"}
-              onValueChange={(v) => setPasso(v === "2" ? 2 : 1)}
-              opcoes={[
-                { valor: "1", rotulo: "Dados gerais" },
-                { valor: "2", rotulo: "Bobinagem" },
-              ]}
-            />
-          </div>
-        )}
-
         <form
           id={ID_FORM}
           noValidate
-          onSubmit={(e) => {
-            if (!editar && celular && passo === 1) {
-              e.preventDefault()
-              void continuar()
-              return
-            }
-            void salvar(e)
-          }}
+          onSubmit={(e) => void salvar(e)}
           className="grid gap-5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-8"
         >
-          {/* Coluna da esquerda (passo 1 / aba Dados gerais) */}
-          <div className={`${passo === 2 ? "hidden md:flex" : "flex"} flex-col gap-5`}>
+          {/* Coluna da esquerda: rastreio e dados gerais */}
+          <div className="flex flex-col gap-5 md:gap-3">
             {props.modo === "editar" ? (
               <div className="flex items-center justify-between gap-3 rounded-[16px] bg-bg px-4 py-3">
                 <span className="text-sm font-semibold">Rastreio</span>
@@ -302,16 +254,14 @@ export function MotorForm(props: Props) {
                   />
 
                   {modo === "AUTOMATICO" ? (
-                    <div className="rounded-[16px] bg-bg p-4">
-                      <p className="text-xs font-semibold text-text-tertiary">Número previsto</p>
-                      <p className="mt-1 text-xl font-bold tabular-nums" aria-live="polite">
-                        {props.modo === "novo" && (
-                          <Suspense fallback={<span className="text-text-tertiary">Calculando...</span>}>
-                            <NumeroPrevisto previsto={props.previsto} />
-                          </Suspense>
-                        )}
-                      </p>
-                      <p className="mt-1 text-xs text-text-tertiary">
+                    <div className="flex items-center justify-between gap-4 rounded-[16px] bg-bg px-4 py-3">
+                      <div>
+                        <p className="text-xs font-semibold text-text-tertiary">Número previsto</p>
+                        <p className="text-xl font-bold tabular-nums" aria-live="polite">
+                          {props.modo === "novo" && <NumeroPrevisto />}
+                        </p>
+                      </div>
+                      <p className="max-w-[190px] text-right text-xs text-text-tertiary">
                         Único e nunca reutilizado. Duplicados são bloqueados.
                       </p>
                     </div>
@@ -358,31 +308,34 @@ export function MotorForm(props: Props) {
 
             <section className="flex flex-col gap-3" aria-label="Dados gerais">
               <TituloSecao>Dados gerais</TituloSecao>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              {/* Grade de 6 colunas: celular 2 por linha (3 em Item/Pacote/Diâmetro); desktop 3 por linha, sem células vazias. */}
+              <div className="grid grid-cols-6 gap-3">
                 <CampoTexto name="clienteNome" label="Cliente" obrigatorio className="col-span-full" />
-                <CampoTexto name="marca" label="Marca" placeholder="WEG" />
-                <CampoTexto name="modelo" label="Modelo" placeholder="W22" />
-                <CampoTexto name="tipoEquipamento" label="Tipo de equipamento" className="col-span-full md:col-span-1" />
-                <CampoPotencia />
-                <CampoLista name="tensao" label="Tensão" opcoes={config.listas.tensoes} sufixo="V" />
-                <CampoTexto name="corrente" label="Corrente (A)" inputMode="decimal" placeholder="13,8" />
-                <CampoLista name="rpm" label="RPM" opcoes={config.listas.rpms} sufixo="RPM" />
-                <CampoTexto name="fatorServico" label="F.S." placeholder="1,15" />
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <CampoTexto name="item" label="Item" />
-                <CampoTexto name="pacote" label="Pacote" />
-                <CampoTexto name="diametro" label="Diâmetro" />
+                <CampoTexto name="marca" label="Marca" placeholder="WEG" className="col-span-3 md:col-span-2" />
+                <CampoTexto name="modelo" label="Modelo" placeholder="W22" className="col-span-3 md:col-span-2" />
+                <CampoTexto name="tipoEquipamento" label="Tipo de equipamento" className="col-span-full md:col-span-2" />
+                <div className="col-span-3 md:col-span-2">
+                  <CampoPotencia />
+                </div>
+                <div className="col-span-3 md:col-span-2">
+                  <CampoLista name="tensao" label="Tensão" opcoes={config.listas.tensoes} sufixo="V" />
+                </div>
+                <CampoTexto name="corrente" label="Corrente (A)" inputMode="decimal" placeholder="13,8" className="col-span-3 md:col-span-2" />
+                <div className="col-span-3 md:col-span-2">
+                  <CampoLista name="rpm" label="RPM" opcoes={config.listas.rpms} sufixo="RPM" />
+                </div>
+                <CampoTexto name="fatorServico" label="F.S." placeholder="1,15" className="col-span-3 md:col-span-2" />
+                <CampoTexto name="item" label="Item" className="col-span-2" />
+                <CampoTexto name="pacote" label="Pacote" className="col-span-2" />
+                <CampoTexto name="diametro" label="Diâmetro" className="col-span-2" />
               </div>
             </section>
           </div>
 
-          {/* Coluna da direita (passo 2 / aba Bobinagem) */}
-          <div className={`${passo === 1 ? "hidden md:flex" : "flex"} flex-col gap-5`}>
+          {/* Coluna da direita: bobinagem e fotos (no celular vem logo abaixo) */}
+          <div className="flex flex-col gap-5 md:gap-3">
             <section className="flex flex-col gap-3" aria-label="Bobinagem">
-              <div className="hidden md:block">
-                <TituloSecao>Bobinagem</TituloSecao>
-              </div>
+              <TituloSecao>Bobinagem</TituloSecao>
               <Controller
                 control={control}
                 name="tipoMotor"

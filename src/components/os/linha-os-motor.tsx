@@ -23,10 +23,10 @@ export function LinhaOSMotor({
   href?: string
 }) {
   return (
-    <li>
+    <li className={`mx-4 ${ultima ? "" : "border-b border-separator"}`}>
       <Link
         href={href ?? `/motores/${encodeURIComponent(motor.rastreio)}?aba=os&os=${os.id}`}
-        className="flex items-center gap-3 px-4 outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="-mx-4 flex items-center gap-3 px-4 py-2.5 outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span
           className="flex size-[30px] shrink-0 items-center justify-center rounded-[8px] bg-[#EE6B10] text-white"
@@ -34,7 +34,7 @@ export function LinhaOSMotor({
         >
           <ClipboardTextIcon size={18} />
         </span>
-        <span className={`flex min-w-0 flex-1 items-center gap-3 py-2.5 ${ultima ? "" : "border-b border-separator"}`}>
+        <span className="flex min-w-0 flex-1 items-center gap-3">
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold">O.S. {os.numero}</span>
             <span className="block truncate text-xs text-text-tertiary">

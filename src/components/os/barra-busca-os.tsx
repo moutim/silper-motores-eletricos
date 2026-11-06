@@ -1,13 +1,11 @@
 "use client"
 
-import { MagnifyingGlassIcon } from "@phosphor-icons/react"
+import { FunnelSimpleIcon, MagnifyingGlassIcon } from "@phosphor-icons/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PainelFiltros } from "@/components/busca/painel-filtros"
 import { config } from "@/lib/config"
 import { rotuloDoMes } from "@/lib/os-lista"
-
-const TODOS = "__todos"
 
 function destino(q: string, mes: string) {
   const sp = new URLSearchParams()
@@ -17,10 +15,11 @@ function destino(q: string, mes: string) {
   return s ? `/os?${s}` : "/os"
 }
 
-/** Busca da lista de O.S. (atualiza ao digitar, 250 ms) e filtro por mês. Estado na URL. */
+/** Busca da lista de O.S. (atualiza ao digitar, 250 ms) e botão Filtros (gaveta) com o filtro por mês. Estado na URL. */
 export function BarraBuscaOS({ q, mes, meses }: { q: string; mes: string; meses: string[] }) {
   const router = useRouter()
   const [texto, setTexto] = useState(q)
+  const [painel, setPainel] = useState(false)
   const enviado = useRef(q)
 
   useEffect(() => {
@@ -54,28 +53,33 @@ export function BarraBuscaOS({ q, mes, meses }: { q: string; mes: string; meses:
           className="h-12 w-full rounded-[16px] border border-border bg-surface pl-10 pr-3 text-[15px] outline-none placeholder:text-text-tertiary focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:h-[52px]"
         />
       </form>
-      <Select
-        value={mes || TODOS}
-        onValueChange={(v) => {
-          enviado.current = texto
-          router.replace(destino(texto, v === TODOS ? "" : v), { scroll: false })
-        }}
+      <button
+        type="button"
+        onClick={() => setPainel(true)}
+        aria-haspopup="dialog"
+        className="flex h-12 shrink-0 items-center gap-2 rounded-[16px] bg-surface px-4 text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring md:h-[52px]"
       >
-        <SelectTrigger
-          aria-label="Filtrar por mês"
-          className="h-12 w-[150px] shrink-0 rounded-[16px] border-0 bg-surface px-4 text-sm font-semibold md:h-[52px] md:w-[210px]"
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={TODOS}>Todos os meses</SelectItem>
-          {opcoes.map((m) => (
-            <SelectItem key={m} value={m}>
-              {rotuloDoMes(m)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <FunnelSimpleIcon size={18} aria-hidden="true" />
+        <span className="max-md:sr-only">Filtros</span>
+        {mes && (
+          <span className="flex size-5 items-center justify-center rounded-full bg-orange-light text-xs font-bold text-orange-text">
+            <span className="sr-only">1 ativo: </span>1
+          </span>
+        )}
+      </button>
+      {painel && (
+        <PainelFiltros
+          valores={{ mes }}
+          campos={[{ chave: "mes", rotulo: "Mês", opcoes: opcoes.map((m) => ({ valor: m, rotulo: rotuloDoMes(m) })) }]}
+          descricao="Filtrar as ordens de serviço por mês."
+          aoFechar={() => setPainel(false)}
+          aoAplicar={(v) => {
+            setPainel(false)
+            enviado.current = texto
+            router.replace(destino(texto, v.mes ?? ""), { scroll: false })
+          }}
+        />
+      )}
     </div>
   )
 }

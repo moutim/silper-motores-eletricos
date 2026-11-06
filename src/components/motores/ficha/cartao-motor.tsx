@@ -31,8 +31,7 @@ export function CartaoMotor({ motor }: { motor: Motor }) {
           </div>
           <div className="min-w-0">
             <div className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-3">
-              <h1 className="hidden text-2xl font-bold leading-[1.15] tracking-[-0.02em] md:block">{nome}</h1>
-              <p className="text-[17px] font-bold leading-[1.15] tracking-[-0.02em] md:hidden">{nome}</p>
+              <h2 className="text-[17px] font-bold leading-[1.15] tracking-[-0.02em] md:text-2xl">{nome}</h2>
               <Badge className="bg-orange-light text-orange-text tabular-nums">{motor.rastreio}</Badge>
             </div>
             <p className="mt-1 text-xs text-text-tertiary md:text-[13px]">{descricaoMotor(motor)}</p>

@@ -33,10 +33,10 @@ function Esqueleto() {
   return (
     <>
       <Skeleton className="h-12 w-full rounded-[16px] md:h-[52px]" />
-      <div className="grid grid-cols-2 gap-[10px] md:grid-cols-3 md:gap-4">
-        <Skeleton className="h-[110px] rounded-card md:h-[72px]" />
-        <Skeleton className="h-[110px] rounded-card md:h-[72px]" />
-        <Skeleton className="h-[72px] rounded-card max-md:hidden" />
+      <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4 md:gap-4">
+        <Skeleton className="h-[110px] rounded-card md:col-span-2 md:h-[136px]" />
+        <Skeleton className="h-[110px] rounded-card md:h-[136px]" />
+        <Skeleton className="h-[136px] rounded-card max-md:hidden" />
       </div>
       <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4 md:gap-4">
         {[0, 1, 2, 3].map((i) => (

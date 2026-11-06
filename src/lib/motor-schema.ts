@@ -91,3 +91,11 @@ export function valoresIniciais(): MotorFormValues {
     auxiliar: { ...bobinaVazia },
   }
 }
+
+/** Ligação e camada que já vêm marcadas no cadastro de motor novo, só para mostrar que dá para trocar (podem ser desmarcadas). */
+const bobinaNova = { ...bobinaVazia, ligacao: "SERIE", camada: "UNICA" } as const
+
+/** Valores do formulário de motor novo. A edição parte dos dados salvos, sem esses padrões. */
+export function valoresIniciaisNovo(): MotorFormValues {
+  return { ...valoresIniciais(), trabalho: { ...bobinaNova }, auxiliar: { ...bobinaNova } }
+}

@@ -4,6 +4,7 @@ import { XIcon } from "@phosphor-icons/react"
 import type * as React from "react"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog"
 import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer"
+import { AreaRolavel } from "@/components/layout/area-rolavel"
 import { useIsMobile } from "@/hooks/use-mobile"
 
 interface Props {
@@ -22,9 +23,10 @@ interface Props {
   children: React.ReactNode
 }
 
-function BotaoX({ rotulo = "Fechar" }: { rotulo?: string }) {
+function BotaoX({ rotulo = "Fechar", ...props }: { rotulo?: string } & React.ComponentProps<"button">) {
   return (
     <button
+      {...props}
       type="button"
       aria-label={rotulo}
       className="flex size-[30px] shrink-0 items-center justify-center rounded-full bg-fill text-text-tertiary outline-none hover:brightness-95 focus-visible:ring-2 focus-visible:ring-ring"
@@ -58,9 +60,9 @@ export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, tituloExtr
             </DrawerClose>
           </div>
           <DrawerDescription className="sr-only">{descricao}</DrawerDescription>
-          <div data-vaul-no-drag className="min-h-0 flex-1 overflow-y-auto px-[18px] pb-4">
+          <AreaRolavel naoArrastar className="px-[18px] pb-4">
             {children}
-          </div>
+          </AreaRolavel>
           <div className="flex gap-2.5 border-t border-separator-subtle px-[18px] py-4 pb-[max(16px,env(safe-area-inset-bottom))]">
             {rodape}
           </div>
@@ -76,7 +78,7 @@ export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, tituloExtr
         style={{ width: larguraJanela }}
         className={`flex max-w-[calc(100vw-48px)] flex-col gap-0 rounded-card p-0 ring-0 sm:max-w-[calc(100vw-48px)] ${alturaFixa ? "h-[min(760px,calc(100dvh-48px))]" : "max-h-[calc(100dvh-48px)]"}`}
       >
-        <div className="flex items-center justify-between gap-3 px-6 pb-4 pt-5">
+        <div className="flex items-center justify-between gap-3 px-6 pb-3 pt-4">
           <div className="flex min-w-0 items-center gap-3">
             <DialogTitle className={classeTitulo}>{titulo}</DialogTitle>
             {tituloExtra}
@@ -86,8 +88,8 @@ export function GavetaOuJanela({ titulo, descricao, aoFechar, rodape, tituloExtr
           </DialogClose>
         </div>
         <DialogDescription className="sr-only">{descricao}</DialogDescription>
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-6">{children}</div>
-        <div className="flex justify-end gap-2.5 border-t border-separator-subtle px-6 py-4">{rodape}</div>
+        <AreaRolavel className="px-6 pb-4">{children}</AreaRolavel>
+        <div className="flex justify-end gap-2.5 border-t border-separator-subtle px-6 py-3">{rodape}</div>
       </DialogContent>
     </Dialog>
   )

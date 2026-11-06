@@ -9,14 +9,14 @@ export function TituloBloco({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** Linha de informação (doc 02, 6.6): rótulo em preto à esquerda, valor em cinza à direita, divisor com recuo de 16 px. */
-export function CartaoLinhas({ linhas }: { linhas: Linha[] }) {
+/** Linha de informação (doc 02, 6.6); `dentroDeCartao` tira o fundo e põe o divisor de 16 px a 16 px (dentro de um CartaoSecao): rótulo em preto à esquerda, valor em cinza à direita, divisor com recuo de 16 px. */
+export function CartaoLinhas({ linhas, dentroDeCartao }: { linhas: Linha[]; dentroDeCartao?: boolean }) {
   return (
-    <ul className="overflow-hidden rounded-card bg-surface">
+    <ul className={dentroDeCartao ? "pb-1" : "overflow-hidden rounded-card bg-surface"}>
       {linhas.map((l) => (
         <li
           key={l.rotulo}
-          className={`relative flex items-center justify-between gap-3 px-4 py-[13px] text-sm after:absolute after:bottom-0 after:left-4 after:right-0 after:h-px after:bg-separator last:after:hidden ${l.destaque ? "bg-orange-light" : ""}`}
+          className={`relative flex items-center justify-between gap-3 px-4 py-[13px] text-sm after:absolute after:bottom-0 ${dentroDeCartao ? "after:left-4 after:right-4" : "after:left-4 after:right-0"} after:h-px after:bg-separator last:after:hidden ${l.destaque ? "bg-orange-light" : ""}`}
         >
           <span className="shrink-0">{l.rotulo}</span>
           <span className={`min-w-0 text-right ${l.destaque ? "font-medium text-orange-text" : "text-text-tertiary"}`}>

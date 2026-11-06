@@ -1,29 +1,21 @@
+import { ClipboardTextIcon, EngineIcon } from "@phosphor-icons/react/ssr"
 import Link from "next/link"
 import { buscar, montarQuery, type ParametrosBusca, POR_GRUPO, temFiltros, opcoesDosFiltros } from "@/lib/busca"
-import { CartaoCadastrar } from "@/components/motores/cartao-cadastrar"
+import { BotaoAcaoCartao } from "@/components/layout/botao-acao-cartao"
+import { CartaoSecao } from "@/components/layout/cartao-secao"
 import { LinhaMotor } from "@/components/motores/linha-motor"
 import { LinhaOSMotor } from "@/components/os/linha-os-motor"
 import { Button } from "@/components/ui/button"
 import { carregarBase } from "@/server/busca"
 import { BarraBusca } from "./barra-busca"
 
-function Titulo({ children, total }: { children: string; total: number }) {
-  return (
-    <div className="flex items-baseline justify-between px-4 md:px-1">
-      <h2 className="text-xs font-medium uppercase tracking-[0.02em] text-text-tertiary">
-        {children} ({total})
-      </h2>
-      <span className="text-xs text-text-tertiary">
-        <span className="md:hidden">Toque para abrir</span>
-        <span className="max-md:hidden">Clique para abrir</span>
-      </span>
-    </div>
-  )
+function Cadastrar() {
+  return <BotaoAcaoCartao href="/motores/novo">Cadastrar</BotaoAcaoCartao>
 }
 
 function VerMais({ href, restantes }: { href: string; restantes: number }) {
   return (
-    <Button asChild variant="secondary" className="self-center">
+    <Button asChild variant="secondary" className="mx-auto my-3 flex w-fit">
       <Link href={href} scroll={false}>
         Ver mais ({restantes})
       </Link>
@@ -50,14 +42,15 @@ export async function ResultadosBusca({ parametros }: { parametros: ParametrosBu
   return (
     <>
       <BarraBusca key="busca" q={q} filtros={filtros} opcoes={opcoes} modo="digitando" />
-      <CartaoCadastrar />
 
       <p className="sr-only" role="status">
         {r.motores.length} motores{buscando ? `, ${r.ordens.length} ordens de serviço` : ""}
       </p>
 
       {!buscando && motores.length === 0 && (
-        <p className="px-1 text-sm text-text-tertiary">Nenhum motor ainda. Cadastre o primeiro.</p>
+        <CartaoSecao rotulo="Motores" icone={<EngineIcon size={18} />} titulo="Motores (0)" acao={<Cadastrar />}>
+          <p className="px-4 pb-3 pt-1 text-sm text-text-tertiary">Nenhum motor ainda. Cadastre o primeiro.</p>
+        </CartaoSecao>
       )}
 
       {buscando && r.motores.length === 0 && r.ordens.length === 0 && (
@@ -65,16 +58,23 @@ export async function ResultadosBusca({ parametros }: { parametros: ParametrosBu
           <p className="text-sm text-text-tertiary">
             {q.trim() !== "" ? `Nenhum resultado para “${q.trim()}”` : "Nenhum motor com esses filtros"}
           </p>
-          <Button asChild variant="secondary">
-            <Link href="/motores">Limpar busca</Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/motores">Limpar busca</Link>
+            </Button>
+            <Cadastrar />
+          </div>
         </div>
       )}
 
       {r.motores.length > 0 && (
-        <section className="flex flex-col gap-2" aria-label="Motores">
-          <Titulo total={r.motores.length}>{buscando ? "Motores" : "Motores recentes"}</Titulo>
-          <ul className="overflow-hidden rounded-card bg-surface">
+        <CartaoSecao
+          rotulo="Motores"
+          icone={<EngineIcon size={18} />}
+          titulo={`Motores (${r.motores.length})`}
+          acao={<Cadastrar />}
+        >
+          <ul>
             {listaM.map((m, i) => (
               <LinhaMotor key={m.id} motor={m} ultima={i === listaM.length - 1} />
             ))}
@@ -85,13 +85,16 @@ export async function ResultadosBusca({ parametros }: { parametros: ParametrosBu
               restantes={r.motores.length - limiteM}
             />
           )}
-        </section>
+        </CartaoSecao>
       )}
 
       {r.ordens.length > 0 && (
-        <section className="flex flex-col gap-2" aria-label="Ordens de serviço">
-          <Titulo total={r.ordens.length}>Ordens de serviço</Titulo>
-          <ul className="overflow-hidden rounded-card bg-surface">
+        <CartaoSecao
+          rotulo="Ordens de serviço"
+          icone={<ClipboardTextIcon size={18} />}
+          titulo={`Ordens de serviço (${r.ordens.length})`}
+        >
+          <ul>
             {listaO.map(({ os, motor }, i) => (
               <LinhaOSMotor key={os.id} os={os} motor={motor} ultima={i === listaO.length - 1} />
             ))}
@@ -102,7 +105,7 @@ export async function ResultadosBusca({ parametros }: { parametros: ParametrosBu
               restantes={r.ordens.length - limiteO}
             />
           )}
-        </section>
+        </CartaoSecao>
       )}
     </>
   )

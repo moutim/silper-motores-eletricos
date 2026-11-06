@@ -7,6 +7,7 @@ import { mensagemRastreioEmUso, validarRastreioDigitado } from "@/lib/rastreio"
 import { contextoDaSessao, NaoAutenticadoError } from "../contexto"
 import { criarMotor, rastreioOcupado } from "../rastreio-service"
 import { invalidarCacheMotores, SheetsMotorRepository } from "../repositories/sheets-motor-repository"
+import { previsaoDoProximoRastreio } from "../motores"
 import { alterarAtivo, editarMotor } from "../motor-service"
 import { PortaDadosSheets } from "../sheets/porta-dados"
 import { PortaMotoresSheets } from "../sheets/porta-motores"
@@ -130,5 +131,15 @@ export async function alterarAtivoMotor(rastreio: string, ativo: boolean): Promi
   } catch (e) {
     console.error("[alterarAtivoMotor]", e)
     return { ok: false, erro: e instanceof NaoAutenticadoError ? MSG_SESSAO : "Não foi possível concluir. Tente de novo." }
+  }
+}
+
+/** Número previsto do próximo rastreio automático. Lido pelo formulário depois de aberto, para a rota não esperar a planilha. */
+export async function previsaoRastreioAcao(): Promise<string | null> {
+  try {
+    return await previsaoDoProximoRastreio()
+  } catch (e) {
+    console.error("[previsão do rastreio]", e)
+    return null
   }
 }

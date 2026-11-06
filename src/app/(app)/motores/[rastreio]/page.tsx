@@ -14,14 +14,11 @@ export default function FichaDoMotor({
   searchParams: Promise<{ aba?: string; os?: string }>
 }) {
   return (
-    <>
-      {/* No celular o título é "Ficha do motor"; no desktop o nome do motor (h1) fica no cartão. */}
-      <div className="mb-3 md:hidden">
-        <PageHeader titulo="Ficha do motor" />
-      </div>
+    <div className="flex flex-col gap-[10px] md:gap-5">
+      <PageHeader titulo="Ficha do motor" voltar={{ href: "/motores", rotulo: "Voltar para Motores" }} />
       <Suspense fallback={<Skeleton className="h-36 w-full rounded-card" />}>
         <FichaConteudo params={params} searchParams={searchParams} />
       </Suspense>
-    </>
+    </div>
   )
 }

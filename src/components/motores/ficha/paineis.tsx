@@ -2,7 +2,9 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { linhasBobinagem, linhasDadosGerais, ordenarBobinagens, tituloBobinagem } from "@/lib/ficha"
 import type { Bobinagem, Motor } from "@/lib/types"
-import { CartaoLinhas, TituloBloco } from "./info"
+import { ClipboardTextIcon, LightningIcon, ListBulletsIcon } from "@phosphor-icons/react/ssr"
+import { CartaoSecao } from "@/components/layout/cartao-secao"
+import { CartaoLinhas } from "./info"
 
 export function Vazio({
   icone,
@@ -40,33 +42,31 @@ export function Vazio({
   )
 }
 
-/** Aba "Dados técnicos" (3.1 e 3.2): todos os dados gerais e a bobinagem; no desktop, 3 colunas. */
+/** Aba "Dados técnicos" (3.1 e 3.2): todos os dados gerais e a bobinagem, cada bloco num cartão com o título dentro; no desktop, 3 colunas. */
 export function PainelDados({ motor, bobinagens }: { motor: Motor; bobinagens: Bobinagem[] }) {
   return (
-    <div className="md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] md:items-start md:gap-5">
-      <div>
-        <TituloBloco>Dados gerais</TituloBloco>
-        <CartaoLinhas linhas={linhasDadosGerais(motor)} />
-      </div>
+    <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] md:items-start md:gap-5">
+      <CartaoSecao titulo="Dados gerais" icone={<ListBulletsIcon size={18} />} acao={null}>
+        <CartaoLinhas linhas={linhasDadosGerais(motor)} dentroDeCartao />
+      </CartaoSecao>
 
-      <div>
+      <div className="flex flex-col gap-3 md:gap-5">
         {ordenarBobinagens(bobinagens).map((b) => (
-          <div key={b.id} className="md:mt-5 md:first:mt-0">
-            <TituloBloco>{tituloBobinagem(b)}</TituloBloco>
-            <CartaoLinhas linhas={linhasBobinagem(b)} />
-          </div>
+          <CartaoSecao key={b.id} titulo={tituloBobinagem(b)} icone={<LightningIcon size={18} />} acao={null}>
+            <CartaoLinhas linhas={linhasBobinagem(b)} dentroDeCartao />
+          </CartaoSecao>
         ))}
         {bobinagens.length === 0 && (
-          <>
-            <TituloBloco>Bobinagem</TituloBloco>
-            <p className="px-4 text-sm text-text-tertiary md:px-1">Sem dados de bobinagem.</p>
-          </>
+          <CartaoSecao titulo="Bobinagem" icone={<LightningIcon size={18} />} acao={null}>
+            <p className="px-4 pb-3 pt-1 text-sm text-text-tertiary">Sem dados de bobinagem.</p>
+          </CartaoSecao>
         )}
       </div>
 
-      <div className="hidden md:block">
-        <TituloBloco>Últimas O.S.</TituloBloco>
-        <div className="rounded-card bg-surface px-4 py-6 text-center text-sm text-text-tertiary">Nenhuma O.S. ainda</div>
+      <div className="max-md:hidden">
+        <CartaoSecao titulo="Últimas O.S." icone={<ClipboardTextIcon size={18} />} acao={null}>
+          <p className="px-4 pb-3 pt-1 text-sm text-text-tertiary">Nenhuma O.S. ainda</p>
+        </CartaoSecao>
       </div>
     </div>
   )
