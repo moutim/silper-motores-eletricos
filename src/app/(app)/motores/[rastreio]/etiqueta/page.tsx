@@ -3,7 +3,7 @@ import { Suspense } from "react"
 import { PageHeader } from "@/components/layout/page-header"
 import { EtiquetaConteudo } from "@/components/motores/etiqueta-conteudo"
 import { FichaConteudo } from "@/components/motores/ficha/ficha-conteudo"
-import { Skeleton } from "@/components/ui/skeleton"
+import { EsqueletoFicha } from "@/components/layout/esqueletos"
 
 export const metadata: Metadata = { title: "Etiqueta" }
 
@@ -22,7 +22,7 @@ export default function EtiquetaPagina({ params, searchParams }: { params: Param
       <div className="mb-3 md:hidden">
         <PageHeader titulo="Ficha do motor" />
       </div>
-      <Suspense fallback={<Skeleton className="h-36 w-full rounded-card" />}>
+      <Suspense fallback={<EsqueletoFicha />}>
         <FichaConteudo params={params} searchParams={Promise.resolve({})} />
       </Suspense>
       <Suspense>

@@ -2,9 +2,9 @@ import { Suspense } from "react"
 import { BottomNav } from "@/components/layout/bottom-nav"
 import { ContaSidebar } from "@/components/layout/conta-sidebar"
 import { InstalarApp } from "@/components/pwa/instalar-app"
+import { EsqueletoConta } from "@/components/layout/esqueletos"
 import { SidebarApp } from "@/components/layout/sidebar-app"
 import { SidebarProvider } from "@/components/ui/sidebar"
-import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AppLayout({
   children,
@@ -23,7 +23,7 @@ export default function AppLayout({
       </a>
       <SidebarApp
         conta={
-          <Suspense fallback={<Skeleton className="h-[84px] w-full rounded-[10px]" />}>
+          <Suspense fallback={<EsqueletoConta />}>
             <ContaSidebar />
           </Suspense>
         }

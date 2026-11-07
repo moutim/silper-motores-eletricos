@@ -1,10 +1,9 @@
-import { CaretLeftIcon } from "@phosphor-icons/react/ssr"
-import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { descricaoMotor } from "@/lib/ficha"
 import { nomeCurto } from "@/lib/motor-format"
 import { formularioDaOS } from "@/lib/os-mapper"
 import { carregarFicha } from "@/server/motores"
+import { PageHeader } from "@/components/layout/page-header"
 import { paraVisao } from "@/components/fotos/painel-fotos"
 import { listarFotosDoMotor } from "@/server/fotos"
 import { carregarOS } from "@/server/ordens"
@@ -57,21 +56,20 @@ export async function OSAbertaConteudo({ params }: { params: ParamsId }) {
   const { os, motor, bobinagensAtuais } = dados
   const fotos = (await listarFotosDoMotor(motor.id)).filter((f) => f.osId === os.id)
   return (
-    <div className="flex flex-col gap-3 md:gap-0">
-      <Link
-        href={`/motores/${encodeURIComponent(motor.rastreio)}?aba=os&os=${os.id}`}
-        className="mb-2.5 hidden w-fit items-center gap-0.5 text-xs font-semibold text-orange-text md:flex"
-      >
-        <CaretLeftIcon size={12} weight="bold" aria-hidden="true" />
-        {nomeCurto(motor)} · {motor.rastreio}
-      </Link>
+    <>
+      <PageHeader
+        titulo="Ordem de serviço"
+        voltar={{
+          href: `/motores/${encodeURIComponent(motor.rastreio)}?aba=os&os=${os.id}`,
+          rotulo: `Voltar para o motor ${motor.rastreio}`,
+        }}
+      />
       <DetalheOS
         os={os}
         motor={motor}
         bobinagensAtuais={bobinagensAtuais}
         fotos={paraVisao(fotos, () => `Foto de serviço da O.S. ${os.numero}, motor ${motor.rastreio}`)}
-        paginaPropria
       />
-    </div>
+    </>
   )
 }

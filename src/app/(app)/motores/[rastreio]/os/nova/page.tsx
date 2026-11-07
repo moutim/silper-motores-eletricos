@@ -3,7 +3,7 @@ import { Suspense } from "react"
 import { PageHeader } from "@/components/layout/page-header"
 import { FichaConteudo } from "@/components/motores/ficha/ficha-conteudo"
 import { NovaOSConteudo } from "@/components/os/os-conteudos"
-import { Skeleton } from "@/components/ui/skeleton"
+import { EsqueletoFicha } from "@/components/layout/esqueletos"
 
 export const metadata: Metadata = { title: "Nova O.S." }
 
@@ -14,7 +14,7 @@ export default function NovaOSPagina({ params }: { params: Promise<{ rastreio: s
       <div className="mb-3 md:hidden">
         <PageHeader titulo="Ficha do motor" />
       </div>
-      <Suspense fallback={<Skeleton className="h-36 w-full rounded-card" />}>
+      <Suspense fallback={<EsqueletoFicha aba="os" />}>
         <FichaConteudo params={params} searchParams={Promise.resolve({ aba: "os" })} />
       </Suspense>
       <Suspense>

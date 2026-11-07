@@ -7,8 +7,8 @@ import { CartoesInfo } from "@/components/inicio/cartoes-info"
 import { MotoresRecentes, UltimasOS } from "@/components/inicio/listas"
 import { BotaoAcaoCartao } from "@/components/layout/botao-acao-cartao"
 import { CartaoSecao } from "@/components/layout/cartao-secao"
+import { EsqueletoInicio } from "@/components/layout/esqueletos"
 import { PageHeader } from "@/components/layout/page-header"
-import { Skeleton } from "@/components/ui/skeleton"
 import { config } from "@/lib/config"
 import { carregarInicio } from "@/server/busca"
 
@@ -41,30 +41,11 @@ async function Conteudo() {
   )
 }
 
-function Esqueleto() {
-  return (
-    <>
-      <Skeleton className="h-12 w-full rounded-[16px] md:h-[52px]" />
-      <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4 md:gap-4">
-        <Skeleton className="h-[110px] rounded-card md:col-span-2 md:h-[136px]" />
-        <Skeleton className="h-[110px] rounded-card md:h-[136px]" />
-        <Skeleton className="h-[136px] rounded-card max-md:hidden" />
-      </div>
-      <div className="grid grid-cols-2 gap-[10px] md:grid-cols-4 md:gap-4">
-        {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-[112px] rounded-card" />
-        ))}
-      </div>
-      <Skeleton className="h-40 w-full rounded-card" />
-    </>
-  )
-}
-
 export default function Inicio() {
   return (
     <div className="flex flex-col gap-[10px] md:gap-5">
       <PageHeader titulo="Início" />
-      <Suspense fallback={<Esqueleto />}>
+      <Suspense fallback={<EsqueletoInicio />}>
         <Conteudo />
       </Suspense>
     </div>

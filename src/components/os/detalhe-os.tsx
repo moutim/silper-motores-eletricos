@@ -14,7 +14,7 @@ import { DadosTecnicosOS } from "./dados-tecnicos-os"
 import { SeletorOS } from "./seletor-os"
 
 /**
- * Conteúdo da O.S. aberta (3.5 e 3.6; no desktop, o painel de 4.4): cartão com a prancheta animada
+ * Conteúdo da O.S. aberta (3.5 e 3.6; no desktop, o painel de 4.4): cartão com a primeira foto da O.S. ou, sem foto, a prancheta animada
  * (3D permitido neste ponto), dados do serviço, dados técnicos e fotos.
  */
 export function DetalheOS({
@@ -22,7 +22,6 @@ export function DetalheOS({
   motor,
   bobinagensAtuais,
   fotos,
-  paginaPropria,
   ordens,
 }: {
   os: OrdemServico
@@ -30,8 +29,6 @@ export function DetalheOS({
   bobinagensAtuais: Bobinagem[]
   /** Fotos desta O.S. (tipo serviço). */
   fotos: FotoView[]
-  /** Na página `/os/[id]` o título da O.S. é o h1 do desktop; dentro da ficha é um h2. */
-  paginaPropria?: boolean
   /** O.S. do motor: com elas, o título vira o seletor de O.S. (aba da ficha, desktop). */
   ordens?: OrdemServico[]
 }) {
@@ -44,25 +41,28 @@ export function DetalheOS({
       <section aria-label="Ordem de serviço" className="rounded-card bg-surface p-3.5 md:px-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-5">
           <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-5">
-            <div className="flex shrink-0 rounded-[12px] bg-fill px-2 py-1.5 md:px-2.5 md:py-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/assets/os-prancheta-animada.svg"
-                alt="Prancheta de ordem de serviço"
-                width={80}
-                height={53}
-                className="h-[53px] w-20 md:h-[73px] md:w-[110px]"
-              />
+            <div className="flex h-[68px] w-24 shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-fill md:h-[104px] md:w-[148px]">
+              {fotos[0] ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={`/api/fotos/${fotos[0].id}`}
+                  alt={fotos[0].alt}
+                  decoding="async"
+                  className="size-full object-cover"
+                />
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src="/assets/os-prancheta-animada.svg"
+                  alt="Prancheta de ordem de serviço"
+                  width={80}
+                  height={53}
+                  className="h-[53px] w-20 md:h-[78px] md:w-[118px]"
+                />
+              )}
             </div>
             <div className="min-w-0">
-              {paginaPropria ? (
-                <>
-                  <h1 className="hidden text-xl font-bold leading-[1.15] tracking-[-0.02em] md:block">O.S. {os.numero}</h1>
-                  <p className="text-[17px] font-bold leading-[1.15] tracking-[-0.02em] md:hidden">O.S. {os.numero}</p>
-                </>
-              ) : (
-                <h2 className="text-[17px] font-bold leading-[1.15] tracking-[-0.02em] md:text-xl">O.S. {os.numero}</h2>
-              )}
+              <h2 className="text-[17px] font-bold leading-[1.15] tracking-[-0.02em] md:text-xl">O.S. {os.numero}</h2>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <Link href={fichaHref} aria-label={`Abrir ficha do motor ${motor.rastreio}`}>
                   <Badge className="bg-orange-light text-orange-text tabular-nums">{motor.rastreio}</Badge>

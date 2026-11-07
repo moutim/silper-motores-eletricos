@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { Suspense } from "react"
 import { PageHeader } from "@/components/layout/page-header"
 import { EditarOSConteudo, OSAbertaConteudo } from "@/components/os/os-conteudos"
-import { Skeleton } from "@/components/ui/skeleton"
+import { EsqueletoOSAberta } from "@/components/layout/esqueletos"
 
 export const metadata: Metadata = { title: "Editar O.S." }
 
@@ -13,7 +13,7 @@ export default function EditarOSPagina({ params }: { params: Promise<{ id: strin
       <div className="mb-3 md:hidden">
         <PageHeader titulo="Ordem de serviço" />
       </div>
-      <Suspense fallback={<Skeleton className="h-36 w-full rounded-card" />}>
+      <Suspense fallback={<EsqueletoOSAberta />}>
         <OSAbertaConteudo params={params} />
       </Suspense>
       <Suspense>
