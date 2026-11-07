@@ -17,7 +17,7 @@ import { config } from "@/lib/config"
 import { type MotorFormValues, motorFormSchema, valoresIniciaisNovo } from "@/lib/motor-schema"
 import { normalizarRastreio, validarRastreioDigitado } from "@/lib/rastreio"
 import { SeletorFotos } from "@/components/fotos/seletor-fotos"
-import { enviarVariasFotos } from "@/lib/envio-fotos"
+import { enviarFotosComAviso } from "@/lib/envio-fotos"
 import { cadastrarMotor, clientesAcao, editarMotorAcao, previsaoRastreioAcao, verificarRastreio } from "@/server/actions/motores"
 import { CampoCliente, CampoLista, CampoPotencia, CampoTexto, TituloSecao } from "./campos"
 import { type BaseEscolhida, EscolherBase } from "./escolher-base"
@@ -155,13 +155,10 @@ export function MotorForm(props: Props) {
           toast.success(`Motor cadastrado: ${r.rastreio}`)
           if (fotosEquipamento.length + fotosEsquema.length > 0) {
             setEnviandoFotos(true)
-            const a = await enviarVariasFotos(fotosEquipamento, { rastreio: r.rastreio, tipo: "EQUIPAMENTO" })
-            const b = await enviarVariasFotos(fotosEsquema, { rastreio: r.rastreio, tipo: "ESQUEMA" })
+            const aviso = { contexto: "O motor foi salvo. ", aoEnviar: () => router.refresh() }
+            await enviarFotosComAviso(fotosEquipamento, { rastreio: r.rastreio, tipo: "EQUIPAMENTO" }, aviso)
+            await enviarFotosComAviso(fotosEsquema, { rastreio: r.rastreio, tipo: "ESQUEMA" }, aviso)
             setEnviandoFotos(false)
-            const falhas = [...a.falhas, ...b.falhas]
-            if (falhas.length > 0) {
-              toast.warning(`O motor foi salvo, mas ${falhas.length} foto(s) não foram enviadas. Adicione pela ficha.`)
-            }
           }
           // O Next preserva o estado da rota interceptada ao fechar: limpa para o próximo cadastro.
           setFotosEquipamento([])

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
-import { type DestinoFoto, enviarVariasFotos } from "@/lib/envio-fotos"
+import { type DestinoFoto, enviarFotosComAviso } from "@/lib/envio-fotos"
 import { Dropzone } from "./dropzone"
 
 /** Escolhe e envia na hora (ficha e O.S. aberta). Mostra o andamento e atualiza a tela ao terminar. */
@@ -23,13 +23,17 @@ export function AdicionarFotos({
 
   async function enviar(arquivos: File[]) {
     setAndamento(`Enviando 1 de ${arquivos.length}...`)
-    const { enviadas, falhas } = await enviarVariasFotos(arquivos, destino, (feitas, total) => {
-      if (feitas < total) setAndamento(`Enviando ${feitas + 1} de ${total}...`)
+    await enviarFotosComAviso(arquivos, destino, {
+      aoProgredir: (feitas, total) => {
+        if (feitas < total) setAndamento(`Enviando ${feitas + 1} de ${total}...`)
+      },
+      // Também roda quando o "Tentar novamente" do aviso consegue enviar.
+      aoEnviar: (enviadas) => {
+        toast.success(enviadas === 1 ? "Foto adicionada" : `${enviadas} fotos adicionadas`)
+        router.refresh()
+      },
     })
     setAndamento(null)
-    if (enviadas > 0) toast.success(enviadas === 1 ? "Foto adicionada" : `${enviadas} fotos adicionadas`)
-    for (const f of falhas) toast.error(f)
-    if (enviadas > 0) router.refresh()
   }
 
   return (

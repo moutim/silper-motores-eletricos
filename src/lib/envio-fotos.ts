@@ -1,3 +1,4 @@
+import { toast } from "sonner"
 import { prepararImagem } from "./imagem-cliente"
 import type { TipoFoto } from "./types"
 
@@ -30,19 +31,63 @@ export async function enviarUmaFoto(arquivo: File, destino: DestinoFoto): Promis
   }
 }
 
+export interface FalhaFoto {
+  arquivo: File
+  mensagem: string
+}
+
+/**
+ * Envia as fotos e, se alguma falhar, mostra um aviso com "Tentar novamente", que reenvia só as que
+ * falharam (e avisa de novo se falharem outra vez). `contexto` abre a frase quando o motor ou a O.S. já
+ * foi salvo ("O motor foi salvo. ..."). `aoEnviar` roda a cada rodada que enviou alguma foto.
+ */
+export async function enviarFotosComAviso(
+  arquivos: File[],
+  destino: DestinoFoto,
+  opcoes: {
+    contexto?: string
+    aoProgredir?: (feitas: number, total: number) => void
+    aoEnviar?: (enviadas: number) => void
+  } = {},
+): Promise<{ enviadas: number; falhas: FalhaFoto[] }> {
+  const resultado = await enviarVariasFotos(arquivos, destino, opcoes.aoProgredir)
+  if (resultado.enviadas > 0) opcoes.aoEnviar?.(resultado.enviadas)
+  const { falhas } = resultado
+  if (falhas.length > 0) {
+    const motivo = falhas[0]!.mensagem
+    const frase =
+      falhas.length === 1
+        ? `${falhas[0]!.arquivo.name}: ${motivo}`
+        : `${falhas.length} fotos não foram enviadas. ${motivo}`
+    toast.error(opcoes.contexto ? `${opcoes.contexto}${frase}` : frase, {
+      duration: 20_000,
+      action: {
+        label: "Tentar novamente",
+        onClick: () =>
+          void enviarFotosComAviso(
+            falhas.map((f) => f.arquivo),
+            destino,
+            { aoEnviar: opcoes.aoEnviar },
+          ),
+      },
+    })
+  }
+  return resultado
+}
+
 /** Envia várias, uma de cada vez (poupa a rede do celular). Devolve quantas foram e as mensagens das que falharam. */
 export async function enviarVariasFotos(
   arquivos: File[],
   destino: DestinoFoto,
   aoProgredir?: (feitas: number, total: number) => void,
-): Promise<{ enviadas: number; falhas: string[] }> {
+): Promise<{ enviadas: number; falhas: FalhaFoto[] }> {
   let enviadas = 0
-  const falhas: string[] = []
+  const falhas: FalhaFoto[] = []
   for (const [i, arquivo] of arquivos.entries()) {
     aoProgredir?.(i, arquivos.length)
     const r = await enviarUmaFoto(arquivo, destino)
     if (r.ok) enviadas++
-    else falhas.push(`${arquivo.name}: ${r.mensagem}`)
+    else falhas.push({ arquivo, mensagem: r.mensagem })
   }
   aoProgredir?.(arquivos.length, arquivos.length)
   return { enviadas, falhas }

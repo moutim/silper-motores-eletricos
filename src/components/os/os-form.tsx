@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { SeletorFotos } from "@/components/fotos/seletor-fotos"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { enviarVariasFotos } from "@/lib/envio-fotos"
+import { enviarFotosComAviso } from "@/lib/envio-fotos"
 import { type OSFormValues, osFormSchema, osValoresIniciais } from "@/lib/os-schema"
 import { criarOSAcao, editarOSAcao } from "@/server/actions/ordens"
 import { CampoData, CampoMoeda, CampoTextoLongo } from "./campos-os"
@@ -73,11 +73,12 @@ export function OSForm(props: Props) {
         toast.success(`O.S. ${r.numero} registrada`)
         if (fotos.length > 0) {
           setEnviandoFotos(true)
-          const env = await enviarVariasFotos(fotos, { rastreio: motor.rastreio, tipo: "SERVICO", osId: r.id })
+          await enviarFotosComAviso(
+            fotos,
+            { rastreio: motor.rastreio, tipo: "SERVICO", osId: r.id },
+            { contexto: "A O.S. foi salva. ", aoEnviar: () => router.refresh() },
+          )
           setEnviandoFotos(false)
-          if (env.falhas.length > 0) {
-            toast.warning(`A O.S. foi salva, mas ${env.falhas.length} foto(s) não foram enviadas. Adicione pela O.S.`)
-          }
         }
         setFotos([])
         form.reset(osValoresIniciais()) // o Next preserva o estado da rota interceptada ao fechar
