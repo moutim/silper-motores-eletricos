@@ -5,7 +5,7 @@ import type { Bobinagem, Foto, Motor, OrdemServico } from "@/lib/types"
 import { DetalheOS } from "./detalhe-os"
 import { HistoricoOS } from "./historico-os"
 
-/** Aba "Ordens de serviço" da ficha (3.3): lista no celular; detalhe e histórico lado a lado no desktop. */
+/** Aba "Ordens de serviço" da ficha (3.3): lista no celular; no desktop, o detalhe da O.S. escolhida, que troca de O.S. pelo seletor no título. */
 export function PainelOS({
   motor,
   bobinagens,
@@ -37,8 +37,9 @@ export function PainelOS({
       <div className="md:hidden">
         <HistoricoOS ordens={ordens} rastreio={motor.rastreio} selecionadaId={selecionada.id} modo="celular" />
       </div>
-      <div className="hidden md:grid md:grid-cols-[minmax(0,1fr)_340px] md:items-start md:gap-5">
+      <div className="hidden md:block">
         <DetalheOS
+          ordens={ordens}
           os={selecionada}
           motor={motor}
           bobinagensAtuais={bobinagens}
@@ -47,7 +48,6 @@ export function PainelOS({
             () => `Foto de serviço da O.S. ${selecionada.numero}, motor ${motor.rastreio}`,
           )}
         />
-        <HistoricoOS ordens={ordens} rastreio={motor.rastreio} selecionadaId={selecionada.id} modo="desktop" />
       </div>
     </>
   )

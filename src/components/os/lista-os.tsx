@@ -12,9 +12,9 @@ import { LinhaOSMotor } from "./linha-os-motor"
 /** "Nova O.S." abre o seletor de motor: a O.S. fica atrelada ao motor escolhido. */
 function NovaOS() {
   return (
-    <BotaoNovaOS className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-white outline-none hover:brightness-110 focus-visible:ring-2 focus-visible:ring-ring md:h-9">
+    <BotaoNovaOS className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-[#3A55B6] px-4 text-sm font-semibold text-white outline-none hover:brightness-110 focus-visible:ring-2 focus-visible:ring-ring md:h-9">
       <PlusIcon size={16} weight="bold" aria-hidden="true" />
-      Nova O.S.
+      Cadastrar
     </BotaoNovaOS>
   )
 }
@@ -47,20 +47,32 @@ export async function ListaOS({ params }: { params: Params }) {
         {todas.length} ordens de serviço
       </p>
 
-      {todas.length === 0 ? (
-        <div className="flex flex-col items-start gap-3 px-1">
+      {todas.length === 0 && !filtrando && (
+        <CartaoSecao
+          rotulo="Ordens de serviço"
+          icone={<ClipboardTextIcon size={18} />}
+          titulo="Ordens de serviço (0)"
+          acao={<NovaOS />}
+        >
+          <p className="px-4 pb-3 pt-1 text-sm text-text-tertiary">Nenhuma O.S. ainda. Cadastre a primeira.</p>
+        </CartaoSecao>
+      )}
+
+      {todas.length === 0 && filtrando && (
+        <div className="flex flex-col items-start gap-3 px-1" role="status">
           <p className="text-sm text-text-tertiary">
-            {filtrando ? "Nenhuma O.S. com esses filtros." : "Nenhuma O.S. ainda. Escolha um motor para abrir a primeira."}
+            {q.trim() !== "" ? `Nenhum resultado para “${q.trim()}”` : "Nenhuma O.S. com esses filtros"}
           </p>
-          {filtrando ? (
+          <div className="flex gap-2">
             <Button asChild variant="secondary">
               <Link href="/os">Limpar busca</Link>
             </Button>
-          ) : (
             <NovaOS />
-          )}
+          </div>
         </div>
-      ) : (
+      )}
+
+      {todas.length > 0 && (
         <CartaoSecao
           rotulo="Ordens de serviço"
           icone={<ClipboardTextIcon size={18} />}

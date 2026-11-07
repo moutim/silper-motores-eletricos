@@ -18,8 +18,8 @@ import { type MotorFormValues, motorFormSchema, valoresIniciaisNovo } from "@/li
 import { normalizarRastreio, validarRastreioDigitado } from "@/lib/rastreio"
 import { SeletorFotos } from "@/components/fotos/seletor-fotos"
 import { enviarVariasFotos } from "@/lib/envio-fotos"
-import { cadastrarMotor, editarMotorAcao, previsaoRastreioAcao, verificarRastreio } from "@/server/actions/motores"
-import { CampoLista, CampoPotencia, CampoTexto, TituloSecao } from "./campos"
+import { cadastrarMotor, clientesAcao, editarMotorAcao, previsaoRastreioAcao, verificarRastreio } from "@/server/actions/motores"
+import { CampoCliente, CampoLista, CampoPotencia, CampoTexto, TituloSecao } from "./campos"
 import { type BaseEscolhida, EscolherBase } from "./escolher-base"
 import { GrupoBobinagem } from "./grupo-bobinagem"
 import { Segmentado } from "./segmentado"
@@ -63,6 +63,17 @@ export function MotorForm(props: Props) {
   const modo = useWatch({ control, name: "rastreioModo" })
   const tipo = useWatch({ control, name: "tipoMotor" })
   const rastreioDigitado = useWatch({ control, name: "rastreio" })
+
+  /** Clientes já cadastrados (só no cadastro). Chegam depois do formulário aberto; até lá o campo é de texto. */
+  const [clientes, setClientes] = useState<string[]>([])
+  useEffect(() => {
+    if (editar) return
+    let ativo = true
+    clientesAcao().then((c) => ativo && setClientes(c))
+    return () => {
+      ativo = false
+    }
+  }, [editar])
 
   const [salvando, setSalvando] = useState(false)
   const [verificando, setVerificando] = useState(false)
@@ -219,10 +230,10 @@ export function MotorForm(props: Props) {
           id={ID_FORM}
           noValidate
           onSubmit={(e) => void salvar(e)}
-          className="grid gap-5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-8"
+          className="flex flex-col gap-5 md:gap-6"
         >
-          {/* Coluna da esquerda: rastreio e dados gerais */}
-          <div className="flex flex-col gap-5 md:gap-3">
+          {/* Faixa de cima (desktop): rastreio à esquerda, motor-base à direita. No celular tudo empilha. */}
+          <div className="flex flex-col gap-5 md:gap-4">
             {props.modo === "editar" ? (
               <div className="flex items-center justify-between gap-3 rounded-[16px] bg-bg px-4 py-3">
                 <span className="text-sm font-semibold">Rastreio</span>
@@ -233,7 +244,7 @@ export function MotorForm(props: Props) {
               </div>
             ) : (
               <>
-                <section className="flex flex-col gap-3" aria-label="Rastreio">
+                <section className="flex flex-col gap-3 md:grid md:grid-cols-2 md:items-center md:gap-4" aria-label="Rastreio">
                   <Controller
                     control={control}
                     name="rastreioModo"
@@ -254,7 +265,7 @@ export function MotorForm(props: Props) {
                   />
 
                   {modo === "AUTOMATICO" ? (
-                    <div className="flex items-center justify-between gap-4 rounded-[16px] bg-bg px-4 py-3">
+                    <div className="flex items-center justify-between gap-4 rounded-[16px] bg-bg px-4 py-3 md:py-2">
                       <div>
                         <p className="text-xs font-semibold text-text-tertiary">Número previsto</p>
                         <p className="text-xl font-bold tabular-nums" aria-live="polite">
@@ -306,51 +317,61 @@ export function MotorForm(props: Props) {
               </>
             )}
 
-            <section className="flex flex-col gap-3" aria-label="Dados gerais">
+          </div>
+
+          <div className="flex flex-col gap-5 md:gap-4">
+          <section className="flex flex-col gap-3" aria-label="Dados gerais">
               <TituloSecao>Dados gerais</TituloSecao>
               {/* Grade de 6 colunas: celular 2 por linha (3 em Item/Pacote/Diâmetro); desktop 3 por linha, sem células vazias. */}
-              <div className="grid grid-cols-6 gap-3">
-                <CampoTexto name="clienteNome" label="Cliente" obrigatorio className="col-span-full" />
-                <CampoTexto name="marca" label="Marca" placeholder="WEG" className="col-span-3 md:col-span-2" />
-                <CampoTexto name="modelo" label="Modelo" placeholder="W22" className="col-span-3 md:col-span-2" />
-                <CampoTexto name="tipoEquipamento" label="Tipo de equipamento" className="col-span-full md:col-span-2" />
-                <div className="col-span-3 md:col-span-2">
+              <div className="grid grid-cols-6 gap-3 md:grid-cols-12">
+                {editar ? (
+                  <CampoTexto name="clienteNome" label="Cliente" obrigatorio className="col-span-full md:col-span-6" />
+                ) : (
+                  <CampoCliente clientes={clientes} />
+                )}
+                <CampoTexto name="marca" label="Marca" placeholder="WEG" className="col-span-3 md:col-span-3" />
+                <CampoTexto name="modelo" label="Modelo" placeholder="W22" className="col-span-3 md:col-span-3" />
+                <CampoTexto name="tipoEquipamento" label="Tipo de equipamento" className="col-span-full md:col-span-3" />
+                <div className="col-span-3 md:col-span-3">
                   <CampoPotencia />
                 </div>
-                <div className="col-span-3 md:col-span-2">
+                <div className="col-span-3 md:col-span-3">
                   <CampoLista name="tensao" label="Tensão" opcoes={config.listas.tensoes} sufixo="V" />
                 </div>
-                <CampoTexto name="corrente" label="Corrente (A)" inputMode="decimal" placeholder="13,8" className="col-span-3 md:col-span-2" />
-                <div className="col-span-3 md:col-span-2">
+                <CampoTexto name="corrente" label="Corrente (A)" inputMode="decimal" placeholder="13,8" className="col-span-3 md:col-span-3" />
+                <div className="col-span-3 md:col-span-3">
                   <CampoLista name="rpm" label="RPM" opcoes={config.listas.rpms} sufixo="RPM" />
                 </div>
-                <CampoTexto name="fatorServico" label="F.S." placeholder="1,15" className="col-span-3 md:col-span-2" />
+                <CampoTexto name="fatorServico" label="F.S." placeholder="1,15" className="col-span-3 md:col-span-3" />
                 <CampoTexto name="item" label="Item" className="col-span-2" />
                 <CampoTexto name="pacote" label="Pacote" className="col-span-2" />
                 <CampoTexto name="diametro" label="Diâmetro" className="col-span-2" />
               </div>
             </section>
-          </div>
 
           {/* Coluna da direita: bobinagem e fotos (no celular vem logo abaixo) */}
-          <div className="flex flex-col gap-5 md:gap-3">
-            <section className="flex flex-col gap-3" aria-label="Bobinagem">
-              <TituloSecao>Bobinagem</TituloSecao>
-              <Controller
-                control={control}
-                name="tipoMotor"
-                render={({ field }) => (
-                  <Segmentado
-                    rotulo="Tipo do motor"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    opcoes={[
-                      { valor: "TRIFASICO", rotulo: "Trifásico" },
-                      { valor: "MONOFASICO", rotulo: "Monofásico" },
-                    ]}
-                  />
-                )}
-              />
+          <div className="flex flex-col gap-5 md:gap-4">
+            <section className="flex flex-col gap-3 md:grid md:grid-cols-[calc(25%-9px)_minmax(0,1fr)] md:items-start md:gap-x-3" aria-label="Bobinagem">
+              <div className="md:col-span-2"><TituloSecao>Bobinagem</TituloSecao></div>
+              <Field className="md:col-start-1 md:row-start-2">
+                <FieldLabel className="text-xs font-semibold text-text-tertiary max-md:sr-only">Tipo do motor</FieldLabel>
+                <Controller
+                  control={control}
+                  name="tipoMotor"
+                  render={({ field }) => (
+                    <Segmentado
+                      rotulo="Tipo do motor"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      opcoes={[
+                        { valor: "TRIFASICO", rotulo: "Trifásico" },
+                        { valor: "MONOFASICO", rotulo: "Monofásico" },
+                      ]}
+                    />
+                  )}
+                />
+              </Field>
+              <div className="flex flex-col gap-3 md:col-start-2 md:row-start-2">
               {editar && (
                 <Alert className="border-0 bg-orange-light text-orange-text">
                   <InfoIcon size={18} aria-hidden="true" />
@@ -368,11 +389,13 @@ export function MotorForm(props: Props) {
                   <GrupoBobinagem grupo="auxiliar" titulo="Bobina auxiliar" />
                 </>
               )}
+              </div>
             </section>
 
             {!editar && (
-              <section className="flex flex-col gap-3" aria-label="Fotos">
+              <section className="flex flex-col gap-3 md:grid md:grid-cols-[calc(25%-9px)_minmax(0,1fr)] md:items-center md:gap-x-3" aria-label="Fotos">
                 <TituloSecao>Fotos (opcional)</TituloSecao>
+                <div className="grid gap-3 md:grid-cols-2">
                 <SeletorFotos
                   rotulo="Foto do equipamento"
                   arquivos={fotosEquipamento}
@@ -385,8 +408,10 @@ export function MotorForm(props: Props) {
                   aoMudar={setFotosEsquema}
                   desabilitado={salvando}
                 />
+                </div>
               </section>
             )}
+          </div>
           </div>
         </form>
       </FormProvider>

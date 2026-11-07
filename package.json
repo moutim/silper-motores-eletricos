@@ -9,10 +9,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest",
-    "sheet:login": "tsx --env-file=.env scripts/sheet-login.ts",
-    "sheet:setup": "tsx --env-file=.env scripts/sheet-setup.ts",
-    "sheet:seed": "tsx --env-file=.env scripts/sheet-seed.ts"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@hookform/resolvers": "^7.0.3",

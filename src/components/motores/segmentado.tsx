@@ -29,7 +29,7 @@ export function Segmentado<T extends string>({ value, onValueChange, opcoes, rot
         <ToggleGroupItem
           key={o.valor}
           value={o.valor}
-          className="h-10 flex-1 rounded-[8px] text-xs font-semibold text-text-secondary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground md:h-8"
+          className="h-10 flex-1 rounded-[8px] text-xs font-semibold text-text-secondary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground md:h-9"
         >
           {o.rotulo}
         </ToggleGroupItem>

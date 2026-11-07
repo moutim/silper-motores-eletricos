@@ -92,7 +92,7 @@ src/
     motores/  os/  fotos/     # componentes de domínio
   lib/                        # regras puras (rastreio, formatadores, busca)
   server/                     # repositórios, armazenamento e ações (Google Sheets/Drive)
-scripts/                      # planilha (login, setup, seed)
+scripts/                      # dados de exemplo usados pelos testes
 docs/
 ```
 

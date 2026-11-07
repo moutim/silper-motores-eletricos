@@ -1,12 +1,16 @@
 "use client"
 
 import { type FieldValues, type Path, Controller, get, useFormContext } from "react-hook-form"
+import { CaretUpDownIcon } from "@phosphor-icons/react"
 import { useState } from "react"
 import { Field, FieldError, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { MotorFormValues } from "@/lib/motor-schema"
 
+/** Gatilho dos seletores do formulário: mesma altura, borda e fonte dos campos de texto (o padrão do shadcn é h-8). */
+const classeSelect =
+  "rounded-field border-border bg-surface text-[13px] data-[size=default]:h-11 md:data-[size=default]:h-10"
 const classeRotulo = "text-xs font-semibold text-text-tertiary"
 
 export function CampoTexto<T extends FieldValues = MotorFormValues>({
@@ -107,7 +111,7 @@ export function CampoLista({
                 field.onChange(v === VAZIO ? "" : v)
               }}
             >
-              <SelectTrigger id={id} className="h-11 w-full rounded-field bg-surface md:h-10">
+              <SelectTrigger id={id} className={`w-full ${classeSelect}`}>
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent>
@@ -160,7 +164,7 @@ export function CampoPotencia() {
           name="potenciaUnidade"
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger aria-label="Unidade da potência" className="h-11 w-[84px] shrink-0 rounded-field bg-surface md:h-10">
+              <SelectTrigger aria-label="Unidade da potência" className={`w-[84px] shrink-0 ${classeSelect}`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -183,5 +187,89 @@ export function TituloSecao({ children, dica }: { children: React.ReactNode; dic
       <h3 className="text-xs font-medium uppercase tracking-[0.02em] text-text-tertiary">{children}</h3>
       {dica && <span className="text-xs text-text-tertiary">{dica}</span>}
     </div>
+  )
+}
+
+const NOVO_CLIENTE = "__novo_cliente"
+
+/**
+ * Cliente do motor: um só campo. Fechado, é uma lista dos clientes já cadastrados com
+ * "Adicionar novo cliente" na primeira posição; ao escolher essa opção o próprio campo vira
+ * texto livre. O botão à direita do campo volta para a lista.
+ */
+export function CampoCliente({ clientes }: { clientes: string[] }) {
+  const { control, formState } = useFormContext<MotorFormValues>()
+  const erro = get(formState.errors, "clienteNome") as { message?: string } | undefined
+  const [digitando, setDigitando] = useState(false)
+  const id = "campo-clienteNome"
+
+  return (
+    <Controller
+      control={control}
+      name="clienteNome"
+      render={({ field }) => {
+        const valor = field.value
+        // Valor que não está na lista (ex.: copiado de um motor-base) também é mostrado como texto.
+        const modoTexto = digitando || (valor !== "" && !clientes.includes(valor))
+        return (
+          <Field data-invalid={!!erro} className="col-span-full md:col-span-6">
+            <FieldLabel htmlFor={id} className={classeRotulo}>
+              Cliente<span aria-hidden="true"> *</span>
+            </FieldLabel>
+            {modoTexto ? (
+              <div className="relative">
+                <Input
+                  id={id}
+                  autoFocus={digitando}
+                  placeholder="Nome do novo cliente"
+                  aria-required
+                  aria-invalid={!!erro}
+                  className="pr-11"
+                  value={valor}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                />
+                <button
+                  type="button"
+                  aria-label="Escolher cliente da lista"
+                  onClick={() => {
+                    setDigitando(false)
+                    field.onChange("")
+                  }}
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-field text-text-tertiary outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <CaretUpDownIcon size={16} aria-hidden="true" />
+                </button>
+              </div>
+            ) : (
+              <Select
+                value={valor}
+                onValueChange={(v) => {
+                  if (v === NOVO_CLIENTE) {
+                    setDigitando(true)
+                    field.onChange("")
+                    return
+                  }
+                  field.onChange(v)
+                }}
+              >
+                <SelectTrigger id={id} aria-invalid={!!erro} className={`w-full ${classeSelect}`}>
+                  <SelectValue placeholder="Selecione ou adicione um cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NOVO_CLIENTE}>Adicionar novo cliente</SelectItem>
+                  {clientes.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {erro?.message && <FieldError>{erro.message}</FieldError>}
+          </Field>
+        )
+      }}
+    />
   )
 }

@@ -16,13 +16,14 @@ export function GrupoBobinagem({
 }) {
   const { control } = useFormContext<MotorFormValues>()
   return (
-    <fieldset className="flex flex-col gap-3">
-      {titulo && <legend className="mb-3 text-sm font-bold">{titulo}</legend>}
-      <div className="grid grid-cols-2 gap-3">
+    <fieldset className="flex flex-col gap-3 md:grid md:grid-cols-[1fr_1fr_1fr_1.5fr_1.5fr] md:items-start">
+      {titulo && <legend className="mb-3 text-sm font-bold md:col-span-full">{titulo}</legend>}
+      <div className="grid grid-cols-2 gap-3 md:contents">
         <CampoTexto name={`${grupo}.passo`} label="Passo" placeholder="1-9" />
         <CampoTexto name={`${grupo}.voltas`} label="Voltas" inputMode="numeric" placeholder="38" />
+        <CampoTexto name={`${grupo}.fio`} label="Fio" placeholder="0,95 mm" className="col-span-2 md:col-span-1" />
       </div>
-      <CampoTexto name={`${grupo}.fio`} label="Fio" placeholder="0,95 mm" />
+      <div className="flex flex-col gap-3 md:contents">
       <Controller
         control={control}
         name={`${grupo}.ligacao`}
@@ -61,6 +62,7 @@ export function GrupoBobinagem({
           </Field>
         )}
       />
+      </div>
     </fieldset>
   )
 }

@@ -1,12 +1,14 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { clientesCadastrados } from "@/lib/clientes"
 import { montarBobinagens, montarMotor } from "@/lib/motor-mapper"
 import { motorFormSchema, type MotorFormValues } from "@/lib/motor-schema"
 import { mensagemRastreioEmUso, validarRastreioDigitado } from "@/lib/rastreio"
 import { contextoDaSessao, NaoAutenticadoError } from "../contexto"
 import { criarMotor, rastreioOcupado } from "../rastreio-service"
 import { invalidarCacheMotores, SheetsMotorRepository } from "../repositories/sheets-motor-repository"
+import { carregarBase } from "../busca"
 import { previsaoDoProximoRastreio } from "../motores"
 import { alterarAtivo, editarMotor } from "../motor-service"
 import { PortaDadosSheets } from "../sheets/porta-dados"
@@ -141,5 +143,16 @@ export async function previsaoRastreioAcao(): Promise<string | null> {
   } catch (e) {
     console.error("[previsão do rastreio]", e)
     return null
+  }
+}
+
+/** Clientes já cadastrados, para o seletor do formulário. Lido depois de aberto, como a previsão do rastreio. */
+export async function clientesAcao(): Promise<string[]> {
+  try {
+    const { motores } = await carregarBase()
+    return clientesCadastrados(motores)
+  } catch (e) {
+    console.error("[clientes]", e)
+    return []
   }
 }

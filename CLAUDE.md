@@ -15,12 +15,9 @@ npm run build               # build de produção
 npm run lint                # ESLint
 npm run typecheck           # tsc --noEmit
 npm test                    # Vitest (uma vez); npm run test:watch para observar
-
-# Planilha (Google Sheets no Drive da conta da Silper). Pare o `npm run dev` antes do login.
-npm run sheet:login         # consentimento do Google; guarda o refresh token em .sheet-token.json
-npm run sheet:setup         # acha ou cria a planilha SilperMotores, com abas e cabeçalhos
-npm run sheet:seed          # DESTRUTIVO: apaga os dados e grava os exemplos do protótipo
 ```
+
+A planilha (Google Sheets no Drive da conta da Silper) é achada ou criada pelo próprio app no primeiro acesso (`src/server/sheets/bootstrap.ts`).
 
 ## Regras do projeto
 
@@ -35,4 +32,4 @@ npm run sheet:seed          # DESTRUTIVO: apaga os dados e grava os exemplos do 
 
 ## Estrutura
 
-`src/app` (rotas), `src/components/{ui,layout,motores,os,fotos}`, `src/lib` (regras puras e tipos), `src/server/{repositories,storage,sheets}`, `scripts/` (planilha e seed), `docs/`.
+`src/app` (rotas), `src/components/{ui,layout,motores,os,fotos}`, `src/lib` (regras puras e tipos), `src/server/{repositories,storage,sheets}`, `scripts/` (dados de exemplo dos testes), `docs/`.

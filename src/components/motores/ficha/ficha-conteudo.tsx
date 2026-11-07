@@ -29,8 +29,12 @@ export async function FichaConteudo({
   const aba = abaDaUrl(abaParam)
   if (motor.ativo) after(() => gravarAcessoRecente(planilha, usuario, motor.id))
 
-  const ordens = aba === "os" || aba === "fotos" ? await listarOSDoMotor(motor.id) : []
-  const fotos = aba === "os" || aba === "fotos" ? await listarFotosDoMotor(motor.id) : []
+  // As O.S. também alimentam o cartão "Últimas O.S." da aba Dados.
+  const ordens = await listarOSDoMotor(motor.id)
+  const todasFotos = await listarFotosDoMotor(motor.id)
+  const fotos = aba === "os" || aba === "fotos" ? todasFotos : []
+  // Foto do cartão: a primeira foto do equipamento enviada ao motor. Foto de O.S. nunca entra (RN-11).
+  const fotoDoCartao = todasFotos.find((f) => f.tipo === "EQUIPAMENTO" && !f.osId)
 
   return (
     <div className="flex flex-col gap-3 md:gap-0">
@@ -44,10 +48,10 @@ export async function FichaConteudo({
         </Alert>
       )}
 
-      <CartaoMotor motor={motor} />
+      <CartaoMotor motor={motor} foto={fotoDoCartao} />
 
       <AbasFicha aba={aba}>
-        {aba === "dados" && <PainelDados motor={motor} bobinagens={bobinagens} />}
+        {aba === "dados" && <PainelDados motor={motor} bobinagens={bobinagens} ordens={ordens} />}
         {aba === "os" && <PainelOS motor={motor} bobinagens={bobinagens} ordens={ordens} fotos={fotos} selecionadaId={osParam} />}
         {aba === "fotos" && <PainelFotos motor={motor} fotos={fotos} ordens={ordens} />}
       </AbasFicha>

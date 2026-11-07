@@ -18,17 +18,12 @@ function ListaMotores({ motores }: { motores: Motor[] }) {
   )
 }
 
-/** "Acessados recentemente" (3 no celular) e "Motores recentes" (4 no desktop). */
+/** "Motores recentes": os últimos 5 que a pessoa abriu. */
 export function MotoresRecentes({ motores, recentesCelular }: { motores: Motor[]; recentesCelular: number }) {
   return (
     <CartaoSecao
       icone={<ClockCounterClockwiseIcon size={18} />}
-      titulo={
-        <>
-          <span className="md:hidden">Acessados recentemente</span>
-          <span className="max-md:hidden">Motores recentes</span>
-        </>
-      }
+      titulo="Motores recentes"
     >
       {motores.length === 0 ? (
         <Vazio>Nenhum motor aberto ainda. Abra uma ficha e ela aparece aqui.</Vazio>

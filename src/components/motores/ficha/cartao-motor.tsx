@@ -3,31 +3,42 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { descricaoMotor } from "@/lib/ficha"
 import { nomeCurto } from "@/lib/motor-format"
-import type { Motor } from "@/lib/types"
+import type { Foto, Motor } from "@/lib/types"
 import { MenuMaisMotor } from "./menu-mais-motor"
 
 /**
- * Cartão do motor (doc 02, 6.5): quadro suave com a ilustração animada (3D permitido neste ponto),
+ * Cartão do motor (doc 02, 6.5): quadro com a foto do equipamento (a primeira enviada para o motor;
+ * foto de O.S. não conta, RN-11) ou, sem foto, a ilustração animada (3D permitido neste ponto),
  * nome, selo do rastreio, tipo e cliente, e os botões da página.
  */
-export function CartaoMotor({ motor }: { motor: Motor }) {
+export function CartaoMotor({ motor, foto }: { motor: Motor; foto?: Foto }) {
   const nome = nomeCurto(motor)
   const href = `/motores/${encodeURIComponent(motor.rastreio)}`
   const bloqueado = !motor.ativo
 
   return (
-    <section aria-label="Motor" className="rounded-card bg-surface p-3.5 md:px-5">
+    <section aria-label="Motor" className="rounded-card bg-surface p-3.5 md:px-5 md:py-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-5">
         <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-5">
-          <div className="flex shrink-0 rounded-[12px] bg-fill px-2 py-1.5 md:px-2.5 md:py-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/motor-animado.svg"
-              alt="Motor elétrico em funcionamento"
-              width={80}
-              height={53}
-              className="h-[53px] w-20 md:h-[73px] md:w-[110px]"
-            />
+          <div className="flex h-[68px] w-24 shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-fill md:h-[104px] md:w-[148px]">
+            {foto ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={`/api/fotos/${foto.id}`}
+                alt={`Foto do motor ${motor.rastreio}`}
+                decoding="async"
+                className="size-full object-cover"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src="/assets/motor-animado.svg"
+                alt="Motor elétrico em funcionamento"
+                width={80}
+                height={53}
+                className="h-[53px] w-20 md:h-[78px] md:w-[118px]"
+              />
+            )}
           </div>
           <div className="min-w-0">
             <div className="flex flex-col items-start gap-1 md:flex-row md:items-center md:gap-3">

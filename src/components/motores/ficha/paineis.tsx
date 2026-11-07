@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { linhasBobinagem, linhasDadosGerais, ordenarBobinagens, tituloBobinagem } from "@/lib/ficha"
-import type { Bobinagem, Motor } from "@/lib/types"
+import { config } from "@/lib/config"
+import type { Bobinagem, Motor, OrdemServico } from "@/lib/types"
+import { LinhaOSMotor } from "@/components/os/linha-os-motor"
 import { ClipboardTextIcon, LightningIcon, ListBulletsIcon } from "@phosphor-icons/react/ssr"
 import { CartaoSecao } from "@/components/layout/cartao-secao"
 import { CartaoLinhas } from "./info"
@@ -43,7 +45,18 @@ export function Vazio({
 }
 
 /** Aba "Dados técnicos" (3.1 e 3.2): todos os dados gerais e a bobinagem, cada bloco num cartão com o título dentro; no desktop, 3 colunas. */
-export function PainelDados({ motor, bobinagens }: { motor: Motor; bobinagens: Bobinagem[] }) {
+export function PainelDados({
+  motor,
+  bobinagens,
+  ordens,
+}: {
+  motor: Motor
+  bobinagens: Bobinagem[]
+  /** O.S. do motor, da mais recente para a mais antiga. */
+  ordens: OrdemServico[]
+}) {
+  const base = `/motores/${encodeURIComponent(motor.rastreio)}?aba=os`
+  const ultimas = ordens.slice(0, config.inicio.ultimasOS)
   return (
     <div className="flex flex-col gap-3 md:grid md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_340px] md:items-start md:gap-5">
       <CartaoSecao titulo="Dados gerais" icone={<ListBulletsIcon size={18} />} acao={null}>
@@ -64,8 +77,33 @@ export function PainelDados({ motor, bobinagens }: { motor: Motor; bobinagens: B
       </div>
 
       <div className="max-md:hidden">
-        <CartaoSecao titulo="Últimas O.S." icone={<ClipboardTextIcon size={18} />} acao={null}>
-          <p className="px-4 pb-3 pt-1 text-sm text-text-tertiary">Nenhuma O.S. ainda</p>
+        <CartaoSecao
+          titulo="Últimas O.S."
+          icone={<ClipboardTextIcon size={18} />}
+          acao={
+            ordens.length > ultimas.length ? (
+              <Link href={base} className="text-xs font-semibold text-blue outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+                Ver todas ({ordens.length})
+              </Link>
+            ) : null
+          }
+        >
+          {ultimas.length === 0 ? (
+            <p className="px-4 pb-3 pt-1 text-sm text-text-tertiary">Nenhuma O.S. ainda</p>
+          ) : (
+            <ul>
+              {ultimas.map((os, i) => (
+                <LinhaOSMotor
+                  key={os.id}
+                  os={os}
+                  motor={motor}
+                  ultima={i === ultimas.length - 1}
+                  direita="data"
+                  href={`${base}&os=${os.id}`}
+                />
+              ))}
+            </ul>
+          )}
         </CartaoSecao>
       </div>
     </div>

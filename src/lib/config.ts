@@ -63,8 +63,8 @@ export const config = {
   },
 
   inicio: {
-    recentesCelular: 3,
-    recentesDesktop: 4,
+    recentesCelular: 5,
+    recentesDesktop: 5,
     ultimasOS: 4,
   },
 

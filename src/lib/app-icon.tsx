@@ -7,11 +7,12 @@ export const TAMANHOS_ICONE_PWA = [192, 512] as const
 
 /**
  * Ícone do app: símbolo da Silper sobre fundo branco, usado no iPhone (apple-icon) e no manifest.
- * O desenho ocupa ~60% da largura, dentro da área segura dos ícones "maskable". `fundo` e `escala` servem ao favicon
+ * O desenho ocupa ~74% da largura (as pontas do símbolo ainda cabem na área segura dos ícones "maskable" do Android);
+ * o iPhone só arredonda os cantos, então o apple-icon usa mais. `fundo` e `escala` também servem ao favicon
  * (fundo transparente e símbolo maior, porque na aba do navegador o ícone é minúsculo).
  */
 export async function renderizarIconeApp(tamanho: number, opcoes: { fundo?: string; escala?: number } = {}) {
-  const { fundo = "#FFFFFF", escala = 0.6 } = opcoes
+  const { fundo = "#FFFFFF", escala = 0.74 } = opcoes
   const svg = await readFile(path.join(process.cwd(), "public/assets/silper-icone.svg"))
   const src = `data:image/svg+xml;base64,${svg.toString("base64")}`
   const largura = Math.round(tamanho * escala)

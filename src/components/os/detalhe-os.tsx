@@ -1,15 +1,17 @@
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { CartaoLinhas, TituloBloco } from "@/components/motores/ficha/info"
+import { CameraIcon, WrenchIcon } from "@phosphor-icons/react/ssr"
+import { CartaoSecao } from "@/components/layout/cartao-secao"
+import { CartaoLinhas } from "@/components/motores/ficha/info"
 import { formatarData, formatarMoeda } from "@/lib/format"
 import { nomeCurto } from "@/lib/motor-format"
 import { compararRetrato } from "@/lib/retrato-diff"
 import type { Bobinagem, Motor, OrdemServico } from "@/lib/types"
-import { TituloSecao } from "@/components/motores/campos"
 import { AdicionarFotos } from "@/components/fotos/adicionar-fotos"
 import { type FotoView, GradeFotos } from "@/components/fotos/grade-fotos"
 import { DadosTecnicosOS } from "./dados-tecnicos-os"
+import { SeletorOS } from "./seletor-os"
 
 /**
  * Conteúdo da O.S. aberta (3.5 e 3.6; no desktop, o painel de 4.4): cartão com a prancheta animada
@@ -21,6 +23,7 @@ export function DetalheOS({
   bobinagensAtuais,
   fotos,
   paginaPropria,
+  ordens,
 }: {
   os: OrdemServico
   motor: Motor
@@ -29,6 +32,8 @@ export function DetalheOS({
   fotos: FotoView[]
   /** Na página `/os/[id]` o título da O.S. é o h1 do desktop; dentro da ficha é um h2. */
   paginaPropria?: boolean
+  /** O.S. do motor: com elas, o título vira o seletor de O.S. (aba da ficha, desktop). */
+  ordens?: OrdemServico[]
 }) {
   const comparacao = compararRetrato(os.retratoTecnico, motor, bobinagensAtuais)
   const fichaHref = `/motores/${encodeURIComponent(motor.rastreio)}`
@@ -69,29 +74,37 @@ export function DetalheOS({
               </p>
             </div>
           </div>
-          <Button
-            asChild={!bloqueado}
-            variant="secondary"
-            disabled={bloqueado}
-            className="h-[42px] w-full text-[13px] md:w-auto md:px-6"
-          >
-            {bloqueado ? <span>Editar O.S.</span> : <Link href={`/os/${os.id}/editar`}>Editar O.S.</Link>}
-          </Button>
+          <div className="flex gap-2">
+            {ordens && <SeletorOS ordens={ordens} atual={os} rastreio={motor.rastreio} podeCriar={!bloqueado} />}
+            <Button
+              asChild={!bloqueado}
+              variant="secondary"
+              disabled={bloqueado}
+              className="h-[42px] flex-1 text-[13px] md:flex-none md:px-6"
+            >
+              {bloqueado ? <span>Editar O.S.</span> : <Link href={`/os/${os.id}/editar`}>Editar O.S.</Link>}
+            </Button>
+          </div>
         </div>
       </section>
 
-      <TituloBloco>Serviço</TituloBloco>
-      <CartaoLinhas
-        linhas={[
+      <div className="mt-3 grid gap-3 md:mt-5 md:grid-cols-2 md:grid-rows-[auto_1fr] md:items-start md:gap-5">
+      <div className="md:col-start-1">
+        <CartaoSecao titulo="Serviço" icone={<WrenchIcon size={18} />} acao={null}>
+          <CartaoLinhas
+            dentroDeCartao
+            linhas={[
           { rotulo: "Entrada", valor: formatarData(os.dataEntrada) },
           { rotulo: "Defeito", valor: os.defeito },
           { rotulo: "Executado", valor: os.servicoExecutado },
           { rotulo: "Observações", valor: os.observacoes },
           { rotulo: "Valor da nota", valor: os.valorNota === null ? null : formatarMoeda(os.valorNota) },
-        ]}
-      />
+            ]}
+          />
+        </CartaoSecao>
+      </div>
 
-      <div className="mt-5">
+      <div className="md:col-start-2 md:row-span-2 md:row-start-1">
         <DadosTecnicosOS
           naAbertura={comparacao.naAbertura}
           fichaAtual={comparacao.fichaAtual}
@@ -99,17 +112,19 @@ export function DetalheOS({
         />
       </div>
 
-      <section className="mt-5 flex flex-col gap-2" aria-label="Fotos desta O.S.">
-        <TituloSecao>Fotos desta O.S.</TituloSecao>
-        <div className="rounded-card bg-surface p-3.5">
-          <GradeFotos fotos={fotos} podeExcluir={!bloqueado}>
-            {!bloqueado && (
-              <AdicionarFotos ladrilho destino={{ rastreio: motor.rastreio, tipo: "SERVICO", osId: os.id }} />
-            )}
-          </GradeFotos>
-          {fotos.length === 0 && bloqueado && <p className="text-sm text-text-tertiary">Nenhuma foto.</p>}
-        </div>
-      </section>
+      <div className="md:col-start-1">
+        <CartaoSecao titulo="Fotos desta O.S." icone={<CameraIcon size={18} />} acao={null}>
+          <div className="px-4 pb-3 pt-1">
+            <GradeFotos fotos={fotos} podeExcluir={!bloqueado}>
+              {!bloqueado && (
+                <AdicionarFotos ladrilho destino={{ rastreio: motor.rastreio, tipo: "SERVICO", osId: os.id }} />
+              )}
+            </GradeFotos>
+            {fotos.length === 0 && bloqueado && <p className="text-sm text-text-tertiary">Nenhuma foto.</p>}
+          </div>
+        </CartaoSecao>
+      </div>
+      </div>
     </div>
   )
 }
